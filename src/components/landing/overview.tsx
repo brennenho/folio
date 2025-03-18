@@ -23,7 +23,7 @@ export function Overview() {
           effectively due to the <span className="font-bold">overwhelming</span>{" "}
           financial reports, complex data, and a lack of clear insights, leading
           many to default to well-known stocks rather than discovering new,
-          beneficial opportunities.{" "}
+          beneficial opportunities.
         </p>
       </div>
     </div>
