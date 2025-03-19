@@ -1,3 +1,4 @@
+import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
 import { Overview } from "@/components/landing/overview";
 import { Steps } from "@/components/landing/steps";
@@ -8,6 +9,7 @@ export default function HomePage() {
       <Hero />
       <Overview />
       <Steps />
+      <Features />
     </main>
   );
 }
