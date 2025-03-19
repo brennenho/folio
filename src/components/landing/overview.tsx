@@ -4,7 +4,7 @@ export function Overview() {
   return (
     <div className="flex w-full items-center justify-center">
       <div className="bg-muted flex w-5/6 flex-col items-center justify-center gap-4 rounded-2xl py-4 text-center md:w-3/4">
-        <p className="text-muted-foreground opacity-50">
+        <p className="text-muted-foreground px-4 opacity-50">
           Eliminate the confusion all while saving time.
         </p>
         <Separator className="opacity-60" />

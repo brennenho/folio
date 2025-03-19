@@ -9,12 +9,12 @@ import {
 
 export function Features() {
   return (
-    <div className="bg-foreground text-background flex w-full justify-center py-24 md:py-36">
+    <div className="bg-foreground text-background flex w-full justify-center py-16 md:py-36">
       <div className="flex w-5/6 flex-col items-center md:w-3/4">
-        <h1 className="text-center text-4xl font-medium tracking-wide md:px-32">
+        <h1 className="text-center text-2xl font-medium tracking-wide md:px-32 md:text-4xl">
           Distill Your Searching on One Secure Workbench
         </h1>
-        <div className="flex w-full flex-col items-center gap-16 py-24 md:py-32">
+        <div className="flex w-full flex-col items-center gap-8 py-16 md:gap-16 md:py-32">
           {/* Research Questions */}
           <div className="flex w-full flex-col gap-1">
             <p className="w-full text-right">01/04</p>
