@@ -1,13 +1,16 @@
 import {
+  Briefcase,
   MarketChanges,
   ResearchQuestion,
+  Shield,
   VisualBreakdowns,
+  Workflow,
 } from "@/components/icons";
 
 export function Features() {
   return (
     <div className="bg-foreground text-background flex w-full flex-col items-center p-36">
-      <h1 className="px-64 text-center text-4xl tracking-wide">
+      <h1 className="px-64 text-center text-4xl font-medium tracking-wide">
         Distill Your Searching on One Secure Workbench
       </h1>
       <div className="flex w-full flex-col items-center gap-16 py-32">
@@ -65,7 +68,7 @@ export function Features() {
               </h1>
               <p className="tracking-tight">
                 Get alerts when laws, interest rate changes, or economic trends
-                impact the companies you’re tracking.
+                impact the companies you&apos;re tracking.
               </p>
             </div>
           </div>
@@ -95,6 +98,45 @@ export function Features() {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <h1 className="px-64 text-center text-4xl font-medium tracking-wide">
+        Unlock Professional-Level Investing
+      </h1>
+
+      <div className="flex items-center gap-8 pt-16">
+        <div className="flex w-1/3 flex-col items-center text-center">
+          <Shield className="w-12" />
+          <h2 className="pb-4 pt-6 text-xl font-medium tracking-wide">
+            Secure Data Protection
+          </h2>
+          <p className="text-sm tracking-tight">
+            Industry-Standard security ensures your data remains private and
+            protected.
+          </p>
+        </div>
+
+        <div className="flex w-1/3 flex-col items-center text-center">
+          <Workflow className="w-12" />
+          <h2 className="pb-4 pt-6 text-xl font-medium tracking-wide">
+            Agentic Workflows
+          </h2>
+          <p className="text-sm tracking-tight">
+            Generate expert-quality stock analysis, market trends, and company
+            comparison with no manual research required.
+          </p>
+        </div>
+
+        <div className="flex w-1/3 flex-col items-center text-center">
+          <Briefcase className="w-12" />
+          <h2 className="pb-4 pt-6 text-xl font-medium tracking-wide">
+            Domain-Specific Models
+          </h2>
+          <p className="text-sm tracking-tight">
+            High-performing custom models built for data-drive investment
+            analysis.
+          </p>
         </div>
       </div>
     </div>

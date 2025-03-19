@@ -40,7 +40,7 @@ function Step({
   description: string;
 }) {
   return (
-    <div className="flex w-80 flex-col items-center gap-6">
+    <div className="flex w-1/3 flex-col items-center gap-6">
       <div className="bg-primary flex h-16 w-16 items-center justify-center rounded-full text-xl font-semibold text-white">
         {num}
       </div>
