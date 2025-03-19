@@ -1,3 +1,4 @@
+import { Contact } from "@/components/landing/contact";
 import { CallToAction } from "@/components/landing/cta";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
@@ -12,6 +13,7 @@ export default function HomePage() {
       <Steps />
       <Features />
       <CallToAction />
+      <Contact />
     </main>
   );
 }
