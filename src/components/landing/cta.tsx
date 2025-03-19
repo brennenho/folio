@@ -7,7 +7,7 @@ export function CallToAction() {
       <div className="bg-background flex w-3/4 items-center justify-between rounded-2xl p-20">
         <div className="flex flex-col gap-4">
           <h1 className="text-4xl tracking-wide">
-            Learn how [name] can help you
+            Learn how Folio can help you
           </h1>
           <p className="tracking-tight">Join the waitlist to get started</p>
         </div>
