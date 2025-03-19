@@ -91,10 +91,11 @@ export function Features() {
             <div className="flex w-1/2 items-center justify-center overflow-hidden bg-[#DBD9D1]">
               {/* TODO: fix text layout */}
               <p className="mx-[-7%] text-center text-3xl tracking-wide text-[#515151] opacity-15">
-                "Demand for Blackwell is amazing as reasoning AI adds another
-                scaling law -- increasing compute for training makes models
-                smarter and increasing compute for long thinking makes the
-                answer smarter," Jensen Huang, founder and CEO of NVIDIA.
+                &ldquo;Demand for Blackwell is amazing as reasoning AI adds
+                another scaling law -- increasing compute for training makes
+                models smarter and increasing compute for long thinking makes
+                the answer smarter,&rdquo; Jensen Huang, founder and CEO of
+                NVIDIA.
               </p>
             </div>
           </div>
