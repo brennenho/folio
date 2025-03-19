@@ -71,14 +71,14 @@ export function Contact() {
       className="bg-foreground text-background flex w-full justify-center py-24"
       id="contact"
     >
-      <div className="flex w-3/4">
-        <div className="flex w-2/5 flex-col gap-2">
+      <div className="flex w-5/6 flex-col md:w-3/4 md:flex-row">
+        <div className="flex w-full flex-col gap-2 pb-8 md:w-2/5">
           <h1 className="text-4xl font-medium tracking-wide">Contact Us</h1>
           <p className="tracking-tight">
             We&apos;re happy to answers all your questions.
           </p>
         </div>
-        <div className="w-3/5 rounded-2xl bg-[#1F1D1A] p-4">
+        <div className="w-full rounded-2xl bg-[#1F1D1A] p-4 md:w-3/5">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}

@@ -1,11 +1,11 @@
 export function Steps() {
   return (
     <div className="my-24 flex w-full flex-col items-center text-center">
-      <div className="flex w-3/4 flex-col items-center gap-8">
+      <div className="flex w-5/6 flex-col items-center gap-8 md:w-3/4">
         <h1 className="text-3xl font-medium tracking-wide">
           Get Started in 3 Simple Steps
         </h1>
-        <div className="flex gap-8">
+        <div className="md: flex flex-col gap-8 md:flex-row">
           <Step
             num={1}
             title="Search"
@@ -22,7 +22,7 @@ export function Steps() {
             description="Sync with your brokerage account to seamlessly trade and manage your portfolio."
           />
         </div>
-        <p className="text-muted-foreground px-16 text-xl opacity-50">
+        <p className="text-muted-foreground text-xl opacity-50 md:px-16">
           The platform then continuously analyzes performance, market
           conditions, and macroeconomic events to suggest re-balancing our new
           investment opportunities.
@@ -42,11 +42,11 @@ function Step({
   description: string;
 }) {
   return (
-    <div className="flex w-1/3 flex-col items-center gap-6">
-      <div className="bg-primary flex h-16 w-16 items-center justify-center rounded-full text-xl font-semibold text-white">
+    <div className="flex w-full flex-row items-center gap-6 md:w-1/3 md:flex-col">
+      <div className="bg-primary flex aspect-square h-12 items-center justify-center rounded-full text-xl font-semibold text-white md:h-16">
         {num}
       </div>
-      <div>
+      <div className="flex flex-col items-start text-left md:items-center md:text-center">
         <h2 className="text-xl font-semibold">{title}</h2>
         <p className="text-muted-foreground opacity-80">{description}</p>
       </div>
