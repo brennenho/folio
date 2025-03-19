@@ -21,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -40,14 +41,24 @@ export function WaitlistButton({ arrow = true }: { arrow?: boolean }) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setSubmitting(true);
     try {
-      console.log(values);
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values }),
+      });
       setOpen(false);
+
+      if (response.ok) {
+        toast.success("Success! Thanks for signing up.");
+      } else {
+        throw new Error();
+      }
       form.reset();
-    } catch (error) {
-      console.error(error);
+    } catch {
+      toast.error("An error occurred, please try again later.");
     } finally {
       setSubmitting(false);
     }
