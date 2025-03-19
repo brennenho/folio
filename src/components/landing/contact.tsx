@@ -44,7 +44,7 @@ export function Contact() {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          access_key: "b36ba8db-03c4-4abe-852f-de4094e1f37f",
+          access_key: process.env.NEXT_PUBLIC_WEB3_FORMS_KEY,
           from_name: "Folio Contact",
           subject: `Folio Inquiry | ${values.name}`,
           ...values,
