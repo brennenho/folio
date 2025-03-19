@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { WaitlistButton } from "@/components/landing/waitlist";
 
 export function Hero() {
   return (
@@ -11,9 +10,7 @@ export function Hero() {
           clear, actionable insights for smarter investing.
         </h2>
         <div className="flex flex-col gap-2">
-          <Button size="lg" className="pl-6">
-            <ArrowRight /> Join Waitlist
-          </Button>
+          <WaitlistButton />
           <p className="text-muted-foreground text-sm opacity-80">
             Learn more + no obligations
           </p>

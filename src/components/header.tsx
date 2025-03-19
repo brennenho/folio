@@ -1,4 +1,5 @@
 import { Folio } from "@/components/icons";
+import { WaitlistButton } from "@/components/landing/waitlist";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -16,7 +17,7 @@ export function Header() {
           <Button variant="link" size="lg">
             Contact Us
           </Button>
-          <Button size="lg">Join Waitlist</Button>
+          <WaitlistButton arrow={false} />
         </div>
       </div>
     </div>

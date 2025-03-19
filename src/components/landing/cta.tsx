@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { WaitlistButton } from "@/components/landing/waitlist";
 
 export function CallToAction() {
   return (
@@ -11,9 +10,7 @@ export function CallToAction() {
           </h1>
           <p className="tracking-tight">Join the waitlist to get started</p>
         </div>
-        <Button size="lg" className="pl-6">
-          <ArrowRight /> Join Waitlist
-        </Button>
+        <WaitlistButton />
       </div>
     </div>
   );
