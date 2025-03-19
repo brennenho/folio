@@ -1,9 +1,10 @@
+import { AnimationWrapper } from "@/components/animation";
 import { WaitlistButton } from "@/components/landing/waitlist";
 
 export function CallToAction() {
   return (
     <div className="bg-foreground flex w-full justify-center">
-      <div className="bg-background flex w-5/6 flex-col items-start justify-between gap-4 rounded-2xl p-10 md:w-3/4 md:flex-row md:items-center md:p-20">
+      <AnimationWrapper className="bg-background flex w-5/6 flex-col items-start justify-between gap-4 rounded-2xl p-10 md:w-3/4 md:flex-row md:items-center md:p-20">
         <div className="flex flex-col md:gap-4">
           <h1 className="text-2xl tracking-wide md:text-4xl">
             Learn how Folio can help you
@@ -11,7 +12,7 @@ export function CallToAction() {
           <p className="tracking-tight">Join the waitlist to get started</p>
         </div>
         <WaitlistButton />
-      </div>
+      </AnimationWrapper>
     </div>
   );
 }

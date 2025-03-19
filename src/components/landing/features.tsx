@@ -1,3 +1,4 @@
+import { AnimationWrapper } from "@/components/animation";
 import {
   Briefcase,
   MarketChanges,
@@ -11,12 +12,12 @@ export function Features() {
   return (
     <div className="bg-foreground text-background flex w-full justify-center py-16 md:py-36">
       <div className="flex w-5/6 flex-col items-center md:w-3/4">
-        <h1 className="text-center text-2xl font-medium tracking-wide md:px-32 md:text-4xl">
+        <AnimationWrapper className="text-center text-2xl font-medium tracking-wide md:px-32 md:text-4xl">
           Distill Your Searching on One Secure Workbench
-        </h1>
+        </AnimationWrapper>
         <div className="flex w-full flex-col items-center gap-8 py-16 md:gap-16 md:py-32">
           {/* Research Questions */}
-          <div className="flex w-full flex-col gap-1">
+          <AnimationWrapper className="flex w-full flex-col gap-1">
             <p className="w-full text-right">01/04</p>
             <div className="flex w-full flex-col md:h-96 md:flex-row">
               <div className="flex w-full items-center justify-center bg-[#D0ECF8D9] py-16 opacity-80 md:w-1/2">
@@ -32,10 +33,10 @@ export function Features() {
                 </p>
               </div>
             </div>
-          </div>
+          </AnimationWrapper>
 
           {/* Visual Breakdowns */}
-          <div className="flex w-full flex-col gap-1">
+          <AnimationWrapper className="flex w-full flex-col gap-1">
             <p className="w-full text-right">02/04</p>
             <div className="flex w-full flex-col-reverse md:h-96 md:flex-row">
               <div className="flex w-full flex-col gap-2 bg-[#1F1D1A] p-12 md:w-1/2 md:p-24 md:pr-32">
@@ -51,10 +52,10 @@ export function Features() {
                 <VisualBreakdowns className="w-full" />
               </div>
             </div>
-          </div>
+          </AnimationWrapper>
 
           {/* Market Changes */}
-          <div className="flex w-full flex-col gap-1">
+          <AnimationWrapper className="flex w-full flex-col gap-1">
             <p className="w-full text-right">03/04</p>
             <div className="flex w-full flex-col md:h-96 md:flex-row">
               <div className="relative flex h-56 w-full bg-[#DFEDD3] md:h-96 md:w-1/2">
@@ -73,10 +74,10 @@ export function Features() {
                 </p>
               </div>
             </div>
-          </div>
+          </AnimationWrapper>
 
           {/* Earnings Reports */}
-          <div className="flex w-full flex-col gap-1">
+          <AnimationWrapper className="flex w-full flex-col gap-1">
             <p className="w-full text-right">04/04</p>
             <div className="flex w-full flex-col-reverse md:h-96 md:flex-row">
               <div className="flex w-full flex-col gap-2 bg-[#1F1D1A] p-12 md:w-1/2 md:p-24 md:pr-32">
@@ -100,15 +101,15 @@ export function Features() {
                 </p>
               </div>
             </div>
-          </div>
+          </AnimationWrapper>
         </div>
 
-        <h1 className="w-5/6 text-center text-2xl font-medium tracking-wide md:w-3/4 md:text-4xl">
+        <AnimationWrapper className="w-5/6 text-center text-2xl font-medium tracking-wide md:w-3/4 md:text-4xl">
           Unlock Professional-Level Investing
-        </h1>
+        </AnimationWrapper>
 
         <div className="flex flex-col items-center gap-8 pt-16 md:flex-row">
-          <div className="flex w-full flex-row items-center gap-6 text-center md:w-1/3 md:flex-col">
+          <AnimationWrapper className="flex w-full flex-row items-center gap-6 text-center md:w-1/3 md:flex-col">
             <Shield className="w-12" />
             <div className="flex flex-col text-left md:text-center">
               <h2 className="text-xl font-medium tracking-wide">
@@ -119,9 +120,9 @@ export function Features() {
                 protected.
               </p>
             </div>
-          </div>
+          </AnimationWrapper>
 
-          <div className="flex w-full flex-row items-center gap-6 text-center md:w-1/3 md:flex-col">
+          <AnimationWrapper className="flex w-full flex-row items-center gap-6 text-center md:w-1/3 md:flex-col">
             <Workflow className="w-12" />
             <div className="flex flex-col text-left md:text-center">
               <h2 className="text-xl font-medium tracking-wide">
@@ -132,9 +133,9 @@ export function Features() {
                 company comparison with no manual research required.
               </p>
             </div>
-          </div>
+          </AnimationWrapper>
 
-          <div className="flex w-full flex-row items-center gap-6 text-center md:w-1/3 md:flex-col">
+          <AnimationWrapper className="flex w-full flex-row items-center gap-6 text-center md:w-1/3 md:flex-col">
             <Briefcase className="w-12" />
             <div className="flex flex-col text-left md:text-center">
               <h2 className="text-xl font-medium tracking-wide">
@@ -145,7 +146,7 @@ export function Features() {
                 analysis.
               </p>
             </div>
-          </div>
+          </AnimationWrapper>
         </div>
       </div>
     </div>
