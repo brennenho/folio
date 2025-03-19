@@ -1,3 +1,4 @@
+import { CallToAction } from "@/components/landing/cta";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
 import { Overview } from "@/components/landing/overview";
@@ -10,6 +11,7 @@ export default function HomePage() {
       <Overview />
       <Steps />
       <Features />
+      <CallToAction />
     </main>
   );
 }

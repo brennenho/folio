@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 export function Overview() {
   return (
     <div className="w-full px-16">
-      <div className="bg-muted flex w-full flex-col items-center justify-center gap-4 rounded-3xl py-4">
+      <div className="bg-muted flex w-full flex-col items-center justify-center gap-4 rounded-2xl py-4">
         <p className="text-muted-foreground opacity-50">
           Eliminate the confusion all while saving time.
         </p>
