@@ -141,7 +141,7 @@ export function Features() {
                 Domain-Specific Models
               </h2>
               <p className="text-sm tracking-tight">
-                High-performing custom models built for data-drive investment
+                High-performing custom models built for data-driven investment
                 analysis.
               </p>
             </div>
