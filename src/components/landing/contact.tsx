@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2).max(100),
@@ -33,14 +34,33 @@ export function Contact() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setSending(true);
     try {
-      console.log(values);
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "8db3abac-23c6-49bb-ad50-3ad1224c3aca",
+          from_name: "Folio Contact",
+          subject: `Folio Inquiry | ${values.name}`,
+          ...values,
+        }),
+      });
+      const result = await response.json();
 
       form.reset();
-    } catch (error) {
-      console.error(error);
+
+      if (result.success) {
+        toast.success("Success! Thanks for reaching out.");
+      } else {
+        throw new Error("Web3Forms API error");
+      }
+    } catch {
+      toast.error("An error occurred, please try again later.");
     } finally {
       setSending(false);
     }
@@ -64,7 +84,6 @@ export function Contact() {
               onSubmit={form.handleSubmit(onSubmit)}
               className="text-muted-foreground space-y-4"
             >
-              <input type="hidden" name="from_name" value="Folio" />
               <div className="flex w-full gap-4">
                 <FormField
                   control={form.control}
