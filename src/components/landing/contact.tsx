@@ -47,7 +47,10 @@ export function Contact() {
   }
 
   return (
-    <div className="bg-foreground text-background flex w-full justify-center py-24">
+    <div
+      className="bg-foreground text-background flex w-full justify-center py-24"
+      id="contact"
+    >
       <div className="flex w-3/4">
         <div className="flex w-2/5 flex-col gap-2">
           <h1 className="text-4xl font-medium tracking-wide">Contact Us</h1>

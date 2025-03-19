@@ -64,8 +64,8 @@ export function WaitlistButton({ arrow = true }: { arrow?: boolean }) {
         <DialogHeader>
           <DialogTitle>Waitlist Signup</DialogTitle>
           <DialogDescription>
-            You'll be the first to access our platform when it's ready. No spam,
-            no obligations.
+            You&apos;ll be the first to access our platform when it&apos;s
+            ready. No spam, no obligations.
           </DialogDescription>
           <Form {...form}>
             <form

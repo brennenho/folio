@@ -14,9 +14,11 @@ export function Header() {
           <h1 className="text-xl font-medium">Folio</h1>
         </Link>
         <div className="flex flex-row">
-          <Button variant="link" size="lg">
-            Contact Us
-          </Button>
+          <Link href="#contact">
+            <Button variant="link" size="lg">
+              Contact Us
+            </Button>
+          </Link>
           <WaitlistButton arrow={false} />
         </div>
       </div>
