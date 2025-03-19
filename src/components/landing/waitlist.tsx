@@ -67,7 +67,21 @@ export function WaitlistButton({ arrow = true }: { arrow?: boolean }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className={arrow ? "pl-6" : ""}>
+        <Button
+          size="lg"
+          className={
+            arrow ? "hidden pl-6 md:inline-flex" : "hidden md:inline-flex"
+          }
+        >
+          {arrow && <ArrowRight />}Join Waitlist
+        </Button>
+      </DialogTrigger>
+      <DialogTrigger asChild>
+        <Button
+          className={
+            arrow ? "inline-flex pl-3 md:hidden" : "inline-flex md:hidden"
+          }
+        >
           {arrow && <ArrowRight />}Join Waitlist
         </Button>
       </DialogTrigger>
