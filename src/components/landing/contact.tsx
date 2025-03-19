@@ -44,17 +44,17 @@ export function Contact() {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          access_key: "8db3abac-23c6-49bb-ad50-3ad1224c3aca",
+          access_key: "b36ba8db-03c4-4abe-852f-de4094e1f37f",
           from_name: "Folio Contact",
           subject: `Folio Inquiry | ${values.name}`,
           ...values,
         }),
       });
-      const result = await response.json();
+      const { success } = (await response.json()) as { success: boolean };
 
       form.reset();
 
-      if (result.success) {
+      if (success) {
         toast.success("Success! Thanks for reaching out.");
       } else {
         throw new Error("Web3Forms API error");
