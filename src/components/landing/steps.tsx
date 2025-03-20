@@ -57,7 +57,9 @@ function Step({
       <AnimationWrapper className="flex w-full items-center justify-center md:w-1/2">
         {icon}
       </AnimationWrapper>
-      <AnimationWrapper className="flex w-full flex-col justify-center p-8 text-left tracking-tight md:w-1/2 md:p-16">
+      <AnimationWrapper
+        className={`flex w-full flex-col justify-center p-8 tracking-tight md:w-1/2 md:p-16 ${reverse ? "text-left md:text-right" : "text-left"}`}
+      >
         <h1 className="text-2xl font-semibold md:text-4xl">{title}</h1>
         <p>{description}</p>
       </AnimationWrapper>

@@ -11,7 +11,7 @@ export function Header() {
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white">
             <Folio className="w-8" />
           </div>
-          <h1 className="text-xl font-medium">Folio</h1>
+          <h1 className="text-xl font-medium">folio</h1>
         </Link>
         <div className="flex flex-row items-center">
           <Link href="#contact">
