@@ -3,9 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { name, email } = (await request.json()) as {
+    const { name, email, phone } = (await request.json()) as {
       name: string;
       email: string;
+      phone: string;
     };
 
     const auth = new google.auth.GoogleAuth({
@@ -18,10 +19,10 @@ export async function POST(request: Request) {
 
     const sheets = google.sheets({ version: "v4", auth });
     const spreadsheetId = process.env.SPREADSHEET_ID!;
-    const range = "Waitlist!A:B";
+    const range = "Waitlist!A:C";
 
     const resource = {
-      values: [[name, email]],
+      values: [[name, email, phone]],
     };
 
     await sheets.spreadsheets.values.append({

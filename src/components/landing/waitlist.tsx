@@ -14,6 +14,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,13 @@ import { z } from "zod";
 const formSchema = z.object({
   name: z.string().min(2).max(100),
   email: z.string().email(),
+  phone: z
+    .string()
+    .refine((val) => {
+      if (val === "") return true;
+      return /^(\+\d{1,3})?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(val);
+    }, "Invalid phone number")
+    .optional(),
 });
 
 export function WaitlistButton({ arrow = true }: { arrow?: boolean }) {
@@ -38,6 +46,7 @@ export function WaitlistButton({ arrow = true }: { arrow?: boolean }) {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
     },
   });
 
@@ -95,19 +104,16 @@ export function WaitlistButton({ arrow = true }: { arrow?: boolean }) {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="text-muted-foreground space-y-4"
+              className="text-muted-foreground space-y-2"
             >
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem className="w-full">
+                    <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Full Name"
-                        {...field}
-                        className="bg-background"
-                      />
+                      <Input {...field} className="bg-background" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -118,12 +124,24 @@ export function WaitlistButton({ arrow = true }: { arrow?: boolean }) {
                 name="email"
                 render={({ field }) => (
                   <FormItem className="w-full">
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Email"
-                        {...field}
-                        className="bg-background"
-                      />
+                      <Input {...field} className="bg-background" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>
+                      Phone Number <span className="italic">(optional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} className="bg-background" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
