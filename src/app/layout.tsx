@@ -1,6 +1,6 @@
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { ClientToaster } from "@/components/ui/clientToaster";
+import { ClientToaster } from "@/components/ui/client-toaster";
 
 import "@/styles/globals.css";
 
