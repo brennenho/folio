@@ -1,6 +1,6 @@
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { Toaster } from "@/components/ui/sonner";
+import { ClientToaster } from "@/components/ui/ClientToaster"; // Updated import
 import "@/styles/globals.css";
 
 import { type Metadata } from "next";
@@ -26,7 +26,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
-        <Toaster richColors />
+        <ClientToaster /> {/* Use the client-only wrapper */}
       </body>
     </html>
   );
