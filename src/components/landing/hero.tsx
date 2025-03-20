@@ -8,7 +8,7 @@ export function Hero() {
         <AnimationWrapper className="text-2xl tracking-wider md:text-5xl lg:text-7xl">
           Retail Investing, Reimagined
         </AnimationWrapper>
-        <AnimationWrapper className="mb-10 max-w-[1150px] text-muted-foreground md:text-2xl lg:px-48">
+        <AnimationWrapper className="mb-10 max-w-[85%] text-muted-foreground md:text-2xl lg:px-48">
           folio&rsquo;s financial AI curates custom portfolios based on your
           investment goals, market trends, and real financial data.
         </AnimationWrapper>
