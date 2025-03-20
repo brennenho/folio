@@ -14,7 +14,7 @@ export function Steps() {
             description="Define your investment goals, interests, or themes, and let our
                 AI curate a diversified selection of stocks. Create a custom ETF
                 tailored to your strategy."
-            icon={<Build className="w-1/3" />}
+            icon={<Build className="w-2/3" />}
           />
 
           <Step
@@ -22,7 +22,7 @@ export function Steps() {
             description="Refine your portfolio by adjusting allocations, backtesting
                 performance, and setting risk preferences to align with your
                 investment approach."
-            icon={<Customize className="w-1/2" />}
+            icon={<Customize className="w-2/3" />}
             reverse
           />
 
@@ -50,10 +50,12 @@ function Step({
 }) {
   return (
     <AnimationWrapper
-      className={`flex w-full ${reverse ? "flex-row-reverse" : ""}`}
+      className={`flex w-full flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"}`}
     >
-      <div className="flex w-1/2 items-center justify-center">{icon}</div>
-      <div className="flex w-1/2 flex-col justify-center p-16 text-left tracking-tight">
+      <div className="flex w-full items-center justify-center md:w-1/2">
+        {icon}
+      </div>
+      <div className="flex w-full flex-col justify-center p-8 text-left tracking-tight md:w-1/2 md:p-16">
         <h1 className="text-2xl font-semibold md:text-4xl">{title}</h1>
         <p>{description}</p>
       </div>
