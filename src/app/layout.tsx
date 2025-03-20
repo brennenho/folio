@@ -1,6 +1,7 @@
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { ClientToaster } from "@/components/ui/ClientToaster"; // Updated import
+import { ClientToaster } from "@/components/ui/client-toaster";
+
 import "@/styles/globals.css";
 
 import { type Metadata } from "next";
