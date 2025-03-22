@@ -3,8 +3,8 @@ import { Build, Customize, Execute } from "@/components/icons";
 
 export function Steps() {
   return (
-    <div className="bg-foreground w-full">
-      <div className="bg-background flex w-full flex-col items-center rounded-b-3xl py-24 text-center">
+    <div className="w-full bg-foreground">
+      <div className="flex w-full flex-col items-center rounded-b-3xl bg-background py-24 text-center">
         <div className="flex w-5/6 flex-col items-center gap-16 md:w-3/4">
           <AnimationWrapper className="text-4xl font-semibold tracking-wide">
             Get Started in 3 Simple Steps
@@ -58,10 +58,12 @@ function Step({
         {icon}
       </AnimationWrapper>
       <AnimationWrapper
-        className={`flex w-full flex-col justify-center p-8 tracking-tight md:w-1/2 md:p-16 ${reverse ? "text-left md:text-right" : "text-left"}`}
+        className={`flex w-full flex-col justify-center p-8 text-left tracking-tight md:w-1/2 md:p-16`}
       >
         <h1 className="text-2xl font-semibold md:text-4xl">{title}</h1>
-        <p>{description}</p>
+        <p className="text-base md:text-[1.2vw] md:leading-normal">
+          {description}
+        </p>
       </AnimationWrapper>
     </div>
   );
