@@ -1,5 +1,6 @@
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { PostHogProvider } from "@/components/posthog";
 import { ClientToaster } from "@/components/ui/client-toaster";
 
 import "@/styles/globals.css";
@@ -24,10 +25,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={instrumentSans.className}>
       <body>
-        <Header />
-        {children}
-        <Footer />
-        <ClientToaster /> {/* Use the client-only wrapper */}
+        <PostHogProvider>
+          <Header />
+          {children}
+          <Footer />
+          <ClientToaster /> {/* Use the client-only wrapper */}
+        </PostHogProvider>
       </body>
     </html>
   );
