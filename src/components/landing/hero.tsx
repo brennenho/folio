@@ -6,7 +6,7 @@ export function Hero() {
     <div className="flex h-[calc(100vh-220px)] w-full items-center justify-center text-center">
       <div className="flex w-5/6 flex-col items-center justify-center gap-6 md:w-3/4">
         <AnimationWrapper className="text-2xl tracking-wider md:text-5xl lg:text-7xl">
-          Retail Investing, Reimagined
+          From Idea to Investment - Instantly
         </AnimationWrapper>
         <AnimationWrapper className="mb-10 max-w-[85%] text-muted-foreground md:text-2xl lg:px-48">
           folio&rsquo;s financial AI curates custom portfolios based on your
