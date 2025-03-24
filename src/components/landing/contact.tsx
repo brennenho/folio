@@ -69,12 +69,14 @@ export function Contact() {
 
   return (
     <div
-      className="bg-foreground text-background flex w-full justify-center py-24"
+      className="flex w-full justify-center bg-foreground py-24 text-background"
       id="contact"
     >
       <div className="flex w-5/6 flex-col md:w-3/4 md:flex-row">
         <AnimationWrapper className="flex w-full flex-col gap-2 pb-8 md:w-2/5">
-          <h1 className="text-4xl font-medium tracking-wide">Contact Us</h1>
+          <h1 className="text-2xl font-medium tracking-wide md:text-4xl">
+            Contact Us
+          </h1>
           <p className="tracking-tight">
             We&apos;re happy to answers all your questions.
           </p>
@@ -83,7 +85,7 @@ export function Contact() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="text-muted-foreground space-y-4"
+              className="space-y-4 text-muted-foreground"
             >
               <div className="flex w-full gap-4">
                 <FormField
@@ -128,7 +130,7 @@ export function Contact() {
                       <Textarea
                         placeholder="Message"
                         {...field}
-                        className="bg-background h-36 resize-none"
+                        className="h-36 resize-none bg-background"
                       />
                     </FormControl>
                     <FormMessage />
