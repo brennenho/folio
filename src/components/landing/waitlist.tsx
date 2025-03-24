@@ -104,7 +104,7 @@ export function WaitlistButton({ arrow = true }: { arrow?: boolean }) {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="text-muted-foreground space-y-2"
+              className="space-y-2 text-muted-foreground"
             >
               <FormField
                 control={form.control}

@@ -3,7 +3,7 @@ import { Briefcase, Shield, Workflow } from "@/components/icons";
 
 export function Features() {
   return (
-    <div className="bg-foreground text-background flex w-full justify-center py-16 md:py-36">
+    <div className="flex w-full justify-center bg-foreground py-16 text-background md:py-36">
       <div className="flex w-5/6 flex-col items-center md:w-3/4">
         <AnimationWrapper className="w-5/6 text-center text-2xl font-medium tracking-wide md:w-3/4 md:text-4xl">
           Unlock Professional-Level Investing
