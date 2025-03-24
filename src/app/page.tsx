@@ -1,5 +1,6 @@
 import { Contact } from "@/components/landing/contact";
 import { CallToAction } from "@/components/landing/cta";
+import { Dashboard } from "@/components/landing/dashboard";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
 import { Overview } from "@/components/landing/overview";
@@ -9,6 +10,7 @@ export default function HomePage() {
   return (
     <main className="flex flex-col items-center justify-center">
       <Hero />
+      <Dashboard />
       <Overview />
       <Steps />
       <Features />

@@ -6,7 +6,7 @@ export function Steps() {
     <div className="w-full bg-foreground">
       <div className="flex w-full flex-col items-center rounded-b-3xl bg-background py-24 text-center">
         <div className="flex w-5/6 flex-col items-center gap-16 md:w-3/4">
-          <AnimationWrapper className="text-4xl font-semibold tracking-wide">
+          <AnimationWrapper className="text-2xl font-semibold tracking-wide md:text-4xl">
             Get Started in 3 Simple Steps
           </AnimationWrapper>
           <div className="flex w-full flex-col gap-16">
