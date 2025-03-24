@@ -11,6 +11,7 @@ export const env = createEnv({
 
   client: {
     NEXT_PUBLIC_WEB3_FORMS_KEY: z.string(),
+    NEXT_PUBLIC_POSTHOG_KEY: z.string(),
   },
 
   runtimeEnv: {
@@ -19,6 +20,7 @@ export const env = createEnv({
     GOOGLE_PRIVATE_KEY: process.env.GOOGLE_PRIVATE_KEY,
     SPREADSHEET_ID: process.env.SPREADSHEET_ID,
     NEXT_PUBLIC_WEB3_FORMS_KEY: process.env.NEXT_PUBLIC_WEB3_FORMS_KEY,
+    NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
