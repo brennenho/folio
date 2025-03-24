@@ -8,8 +8,8 @@ import { type Metadata } from "next";
 import { Instrument_Sans } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "Folio",
-  description: "Retail Investing, Reimagined",
+  title: "folio",
+  description: "From Idea to Investment - Instantly",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
