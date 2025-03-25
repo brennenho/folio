@@ -11,27 +11,29 @@ export function Overview() {
         <Separator className="opacity-60" />
         <div className="my-[2.5%] w-[90%] md:w-[63%]">
           <p>
-            <span className="font-bold">70%</span> of trades are concentrated in
-            just <span className="font-bold">7</span> stocks, despite there
-            being <span className="font-bold">6,000+</span> publicly traded
-            companies.
+            Most people only invest in the same{" "}
+            <span className="font-bold">7</span> stocks even though there are
+            over <span className="font-bold">6,000</span> to choose from.
           </p>
           <br />
           <p>
-            <span className="inline-block w-[1.2em]"></span>The problem
-            isn&apos;t a lack of information. It&apos;s{" "}
-            <span className="font-bold">understanding</span> it. SEC filings,
-            earnings reports, and market trends are too complex.
+            Why? Because digging through SEC filings, earnings reports, and
+            market data takes too much time and makes investing feel{" "}
+            <span className="font-bold">overwhelming</span>.
           </p>
           <br />
           <p>
-            But, <span className="font-bold">distilling</span> it down
-            isn&apos;t.
+            Folio is your{" "}
+            <span className="font-bold">personal investment co-pilot</span>. It
+            helps you explore new companies, analyze real market data, and build
+            <span className="font-bold">custom</span> portfolios - all in one
+            place.
           </p>
           <br />
           <p>
-            Build, customize, and execute your own custom AI-enabled portfolios{" "}
-            <span className="font-bold">tailored</span> to your strategy.
+            <span className="font-bold">You set the strategy</span>. We help you
+            uncover the stocks that match it. Discover smarter opportunities.
+            Build with confidence. Invest in minutes.
           </p>
         </div>
       </div>
