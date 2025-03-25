@@ -3,41 +3,28 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { loginSchema } from "@/app/(auth)/login/page";
+import { signupSchema } from "@/app/(auth)/signup/page";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
-export async function login(formData: FormData) {
+export async function login(loginData: z.infer<typeof loginSchema>) {
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
+    email: loginData.email,
+    password: loginData.password,
   };
 
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    redirect("/error");
+    throw new Error(error.message);
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  revalidatePath("/private", "layout");
+  redirect("/private");
 }
-
-const signupSchema = z
-  .object({
-    firstName: z.string().min(1),
-    lastName: z.string().min(1),
-    email: z.string().email(),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
 
 export async function signup(signupData: z.infer<typeof signupSchema>) {
   const supabase = await createClient();
@@ -57,8 +44,8 @@ export async function signup(signupData: z.infer<typeof signupSchema>) {
 
   if (error) {
     throw new Error(error.message);
-  } else {
-    revalidatePath("/private", "layout");
-    redirect("/private");
   }
+
+  revalidatePath("/private", "layout");
+  redirect("/private");
 }
