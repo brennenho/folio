@@ -25,7 +25,7 @@ export function Overview() {
           <p>
             Folio is your{" "}
             <span className="font-bold">personal investment co-pilot</span>. It
-            helps you explore new companies, analyze real market data, and build
+            helps you explore new companies, analyze real market data, and build{" "}
             <span className="font-bold">custom</span> portfolios - all in one
             place.
           </p>
