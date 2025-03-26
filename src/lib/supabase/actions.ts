@@ -2,12 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-import { loginSchema } from "@/app/(auth)/login/page";
-import { signupSchema } from "@/app/(auth)/signup/page";
 import { createClient } from "@/lib/supabase/server";
-import { z } from "zod";
 
-export async function login(loginData: z.infer<typeof loginSchema>) {
+export async function login(loginData: { email: string; password: string }) {
   const supabase = await createClient();
 
   const data = {
@@ -24,7 +21,13 @@ export async function login(loginData: z.infer<typeof loginSchema>) {
   revalidatePath("/private", "layout");
 }
 
-export async function signup(signupData: z.infer<typeof signupSchema>) {
+export async function signup(signupData: {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  confirmPassword: string;
+}) {
   const supabase = await createClient();
 
   const data = {

@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export const signupSchema = z
+const signupSchema = z
   .object({
     firstName: z.string().min(1),
     lastName: z.string().min(1),
@@ -53,7 +53,6 @@ export default function Signup() {
     setSubmitting(true);
     try {
       await signup(values);
-      form.reset();
 
       router.push("/private");
     } catch (error: unknown) {

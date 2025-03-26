@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export const loginSchema = z.object({
+const loginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
@@ -42,7 +42,6 @@ export default function Login() {
     setSubmitting(true);
     try {
       await login(values);
-      form.reset();
 
       router.push("/private");
     } catch (error: unknown) {
