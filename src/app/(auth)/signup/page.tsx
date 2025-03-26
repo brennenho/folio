@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { signup } from "@/lib/supabase/actions";
+import { createClient } from "@/lib/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -33,10 +34,25 @@ const signupSchema = z
     path: ["confirmPassword"],
   });
 
-export default function Signup() {
+export default async function Signup() {
+  const [isLoading, setIsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    async function checkUser() {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.getUser();
+
+      if (!error && data.user) {
+        router.push("/private");
+      } else {
+        setIsLoading(false);
+      }
+    }
+    checkUser();
+  }, [router]);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -56,10 +72,18 @@ export default function Signup() {
 
       router.push("/private");
     } catch (error: unknown) {
-      toast.error("An unexpected error occurred");
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred, please try again later");
+      }
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (isLoading) {
+    return null; // TODO: add loading ui
   }
 
   return (
