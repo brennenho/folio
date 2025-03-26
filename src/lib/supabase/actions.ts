@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { loginSchema } from "@/app/(auth)/login/page";
 import { signupSchema } from "@/app/(auth)/signup/page";
@@ -23,7 +22,6 @@ export async function login(loginData: z.infer<typeof loginSchema>) {
   }
 
   revalidatePath("/private", "layout");
-  redirect("/private");
 }
 
 export async function signup(signupData: z.infer<typeof signupSchema>) {
@@ -47,5 +45,15 @@ export async function signup(signupData: z.infer<typeof signupSchema>) {
   }
 
   revalidatePath("/private", "layout");
-  redirect("/private");
+}
+
+export async function getUser() {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+
+    return data;
+  } catch (error) {
+    console.error("Error checking authentication:", error);
+  }
 }

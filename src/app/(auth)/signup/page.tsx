@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { signup } from "@/lib/supabase/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -35,6 +36,7 @@ export const signupSchema = z
 export default function Signup() {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -52,12 +54,10 @@ export default function Signup() {
     try {
       await signup(values);
       form.reset();
+
+      router.push("/private");
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unexpected error occurred");
-      }
+      toast.error("An unexpected error occurred");
     } finally {
       setSubmitting(false);
     }
