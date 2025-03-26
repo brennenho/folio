@@ -34,7 +34,7 @@ const signupSchema = z
     path: ["confirmPassword"],
   });
 
-export default async function Signup() {
+export default function Signup() {
   const [isLoading, setIsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -51,7 +51,10 @@ export default async function Signup() {
         setIsLoading(false);
       }
     }
-    checkUser();
+    void checkUser().catch(() => {
+      toast.error("An unexpected error occurred");
+      setIsLoading(false);
+    });
   }, [router]);
 
   const form = useForm<z.infer<typeof signupSchema>>({
