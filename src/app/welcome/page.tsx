@@ -1,18 +1,20 @@
 "use client";
 
 import { Folio } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
+  CarouselDots,
   CarouselItem,
 } from "@/components/ui/carousel";
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 
 export default function Welcome() {
   return (
-    <div className="flex h-screen w-full items-center justify-center">
+    <div className="flex h-screen w-full flex-col items-center justify-center">
       <Carousel plugins={[WheelGesturesPlugin()]} className="w-1/2">
-        <CarouselContent>
+        <CarouselContent className="py-24">
           <CarouselItem>
             <div className="flex w-full flex-col items-center justify-center gap-5 text-center">
               <Folio className="h-14 w-14 rounded-full" />
@@ -44,7 +46,14 @@ export default function Welcome() {
             </div>
           </CarouselItem>
         </CarouselContent>
+        <CarouselDots />
       </Carousel>
+      <div className="flex gap-8 p-12">
+        <Button size="lg" variant="outline">
+          Login
+        </Button>
+        <Button size="lg">Sign Up</Button>
+      </div>
     </div>
   );
 }
