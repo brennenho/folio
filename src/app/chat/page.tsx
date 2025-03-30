@@ -178,8 +178,8 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Left Sidebar (Island) - Slightly smaller */}
-      <div className="fixed left-5 top-1/2 z-10 -translate-y-1/2">
+      {/* Left Sidebar (Island)*/}
+      <div className="fixed top-1/2 z-10 -translate-y-1/2 md:left-12">
         <div className="flex flex-col items-center gap-7 rounded-full border border-border bg-background px-5 py-7 shadow-md">
           <button
             onClick={() => setIsSearching(!isSearching)}
@@ -207,26 +207,29 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Main content wrapper */}
-      <div className="ml-20 flex flex-1">
+      {/* Main content wrapper with adjusted margin */}
+      <div className="ml-24 flex flex-1 md:ml-40">
         <div className="flex flex-1">
           {/* Document Tabs Sidebar */}
           <div className="mt-20 w-64 border-r-0">
             <div className="flex items-center justify-between p-4">
-              <h2 className="font-medium">Document tabs</h2>
+              <h2 className="font-instrument-sans font-medium">
+                Document tabs
+              </h2>
               <Button variant="ghost" size="icon" onClick={handleAddTab}>
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
 
             {/* Shorter horizontal line */}
-            <div className="mx-4 border-t border-border" />
+            <div className="mx-4 mb-10 mt-4 border-t border-border" />
 
-            <div className="overflow-y-auto p-2">
+            {/* Tab items with padding aligned to header */}
+            <div className="mt-4 overflow-y-auto px-4">
               {documentTabs.map((tab) => (
                 <div
                   key={tab.id}
-                  className={`mb-1 flex cursor-pointer items-center justify-between rounded-lg p-2 ${
+                  className={`font-instrument-sans mb-1 flex cursor-pointer items-center justify-between rounded-2xl p-2 ${
                     tab.active ? "bg-black text-white" : "hover:bg-accent"
                   }`}
                   onClick={() => handleTabClick(tab.id)}
@@ -264,20 +267,19 @@ export default function ChatPage() {
             )}
           </div>
 
-          {/* Chat Area */}
-          <div className="relative mt-20 flex-1">
+          {/* Chat Area - moved higher */}
+          <div className="relative mt-10 flex-1">
             {/* Chat container with responsive spacing */}
             <div className="absolute inset-y-0 left-0 right-0 rounded-tl-3xl rounded-tr-3xl border-l border-r border-t border-border bg-background shadow-sm md:right-[8%]">
               {/* Chat Messages */}
               <div
                 ref={chatContainerRef}
                 className="h-[calc(100%-80px)] overflow-y-auto p-6"
+                style={{ color: "#898989" }}
               >
                 {messages.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center">
-                    <div className="text-muted-foreground">
-                      e.g., generate a portfolio of agentic AI companies
-                    </div>
+                    {/* Empty state - no longer needed here as we're moving it above the input */}
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -308,28 +310,43 @@ export default function ChatPage() {
                 )}
               </div>
 
-              {/* Chat Input */}
-              <div className="absolute bottom-4 left-0 right-0 px-6">
-                <form onSubmit={handleSubmit} className="relative w-full">
-                  <Input
-                    placeholder="What are you looking for? Give us a brief description."
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    className="rounded-full py-6 pr-10"
-                  />
-                  <Button
-                    type="submit"
-                    size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full"
-                    disabled={!inputValue.trim() || isLoading}
+              {/* Chat Input with example text positioned above */}
+              <div className="absolute bottom-[10%] left-0 right-0">
+                {/* Example text positioned above the input */}
+                {messages.length === 0 && (
+                  <div
+                    className="mb-5 text-center"
+                    style={{ color: "#898989" }}
                   >
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                </form>
+                    e.g., generate a portfolio of agentic AI companies
+                  </div>
+                )}
+
+                <div className="flex justify-center">
+                  <form
+                    onSubmit={handleSubmit}
+                    className="relative w-[60%] max-w-xl rounded-lg"
+                  >
+                    <Input
+                      placeholder="What are you looking for? Give us a brief description."
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      className="font-instrument-sans rounded-full py-8 pr-10 text-black placeholder:text-center placeholder:text-base placeholder:text-[#898989]"
+                    />
+                    <Button
+                      type="submit"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full"
+                      disabled={!inputValue.trim() || isLoading}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                  </form>
+                </div>
               </div>
             </div>
 
-            {/* User profile button - BIGGER */}
+            {/* User profile button */}
             <div className="absolute right-6 top-6 z-10">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
