@@ -1,103 +1,132 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Search, Home, Upload, Send, Plus } from "lucide-react";
-import { Folio } from "@/components/icons";
+import type React from "react";
+
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Search,
+  Home,
+  FileText,
+  MoreVertical,
+  Plus,
+  ArrowUp,
+  User,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-interface Tab {
+interface DocumentTab {
   id: string;
   name: string;
+  active?: boolean;
 }
 
 interface ChatMessage {
   id: string;
   content: string;
   isUser: boolean;
-  timestamp: Date;
 }
 
 export default function ChatPage() {
-  const [tabs, setTabs] = useState<Tab[]>([]);
-  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [documentTabs, setDocumentTabs] = useState<DocumentTab[]>([
+    { id: "1", name: "Tab 1", active: true },
+  ]);
   const [isSearching, setIsSearching] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch user's tabs on component mount
+  // Fetch document tabs on component mount
   useEffect(() => {
-    async function fetchTabs() {
-      try {
-        const response = await fetch("http://localhost:3000/api/tabs");
-        if (!response.ok) throw new Error("Failed to fetch tabs");
-
-        const data = await response.json();
-        setTabs(data);
-
-        // Set the first tab as active if there are tabs
-        if (data.length > 0) {
-          setActiveTab(data[0].id);
-        }
-      } catch (error) {
-        console.error("Error fetching tabs:", error);
-        toast.error("Failed to load your documents");
-      }
-    }
-
-    fetchTabs();
+    fetchDocumentTabs();
   }, []);
 
-  // Handle search functionality
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+  // Scroll to bottom of chat when messages change
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
-    setIsSearching(true);
+  const fetchDocumentTabs = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/search?q=${encodeURIComponent(searchQuery)}`,
-      );
-      if (!response.ok) throw new Error("Search failed");
-
-      const data = await response.json();
-
-      // Add the search result as a bot message
-      const newMessage: ChatMessage = {
-        id: Date.now().toString(),
-        content: data.result || "No results found for your query.",
-        isUser: false,
-        timestamp: new Date(),
-      };
-
-      setMessages([...messages, newMessage]);
+      const response = await fetch("http://localhost:3000/api/document-tabs");
+      if (response.ok) {
+        const data = await response.json();
+        setDocumentTabs(data);
+      } else {
+        console.error("Failed to fetch document tabs");
+      }
     } catch (error) {
-      console.error("Search error:", error);
-      toast.error("Search failed. Please try again.");
-    } finally {
-      setIsSearching(false);
+      console.error("Error fetching document tabs:", error);
     }
   };
 
-  // Handle sending a new message
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      setIsSearching(false);
+      return;
+    }
 
-    // Add user message to chat
+    setIsSearching(true);
+    try {
+      await fetch(
+        `http://localhost:3000/api/search?q=${encodeURIComponent(query)}`,
+      );
+    } catch (error) {
+      console.error("Error searching:", error);
+    }
+  };
+
+  const handleAddTab = async () => {
+    try {
+      await fetch("http://localhost:3000/api/document-tabs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: `Tab ${documentTabs.length + 1}` }),
+      });
+
+      fetchDocumentTabs();
+    } catch (error) {
+      console.error("Error adding tab:", error);
+    }
+  };
+
+  const handleTabClick = (tabId: string) => {
+    setDocumentTabs(
+      documentTabs.map((tab) => ({
+        ...tab,
+        active: tab.id === tabId,
+      })),
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    // Add user message
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: inputMessage,
+      content: inputValue,
       isUser: true,
-      timestamp: new Date(),
     };
 
-    setMessages([...messages, userMessage]);
-    setInputMessage("");
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
     setIsLoading(true);
 
     try {
@@ -106,209 +135,219 @@ export default function ChatPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: inputMessage, tabId: activeTab }),
+        body: JSON.stringify({ message: inputValue }),
       });
 
-      if (!response.ok) throw new Error("Failed to get response");
+      if (response.ok) {
+        const data = await response.json();
 
-      const data = await response.json();
+        // Add AI response
+        const aiMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          content:
+            data.response || "I'm sorry, I couldn't process that request.",
+          isUser: false,
+        };
 
-      // Add bot response to chat
-      const botMessage: ChatMessage = {
-        id: Date.now().toString() + "-response",
-        content: data.response,
+        setMessages((prev) => [...prev, aiMessage]);
+      } else {
+        // Add error message
+        const errorMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          content: "Sorry, there was an error processing your request.",
+          isUser: false,
+        };
+
+        setMessages((prev) => [...prev, errorMessage]);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+
+      // Add error message
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: "Sorry, there was an error connecting to the server.",
         isUser: false,
-        timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, botMessage]);
-    } catch (error) {
-      console.error("Chat error:", error);
-      toast.error("Failed to get a response. Please try again.");
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Create a new tab
-  const handleCreateTab = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/api/tabs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: `Tab ${tabs.length + 1}` }),
-      });
-
-      if (!response.ok) throw new Error("Failed to create tab");
-
-      const newTab = await response.json();
-      setTabs([...tabs, newTab]);
-      setActiveTab(newTab.id);
-      setMessages([]);
-    } catch (error) {
-      console.error("Error creating tab:", error);
-      toast.error("Failed to create a new tab");
-    }
-  };
-
   return (
-    <div className="flex h-screen w-full">
-      {/* Left Sidebar */}
-      <div className="flex w-[300px] flex-col border-r">
-        <div className="flex h-16 items-center justify-between border-b px-4">
-          <h2 className="text-lg font-medium">Document tabs</h2>
-          <Button variant="ghost" size="icon" onClick={handleCreateTab}>
-            <Plus className="h-5 w-5" />
-          </Button>
-        </div>
+    <div className="flex h-screen bg-background">
+      {/* Left Sidebar (Island) - Slightly smaller */}
+      <div className="fixed left-5 top-1/2 z-10 -translate-y-1/2">
+        <div className="flex flex-col items-center gap-7 rounded-full border border-border bg-background px-5 py-7 shadow-md">
+          <button
+            onClick={() => setIsSearching(!isSearching)}
+            className="rounded-full p-2.5 hover:bg-accent"
+            aria-label="Search"
+          >
+            <Search className="h-6 w-6" />
+          </button>
 
-        {/* Tabs List */}
-        <div className="flex-1 overflow-auto p-2">
-          {tabs.map((tab) => (
-            <div
-              key={tab.id}
-              className={`mb-2 flex cursor-pointer items-center justify-between rounded-md p-2 ${
-                activeTab === tab.id ? "bg-secondary" : "hover:bg-secondary/50"
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <span className="truncate">{tab.name}</span>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <span className="sr-only">Menu</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <circle cx="12" cy="12" r="1" />
-                  <circle cx="12" cy="5" r="1" />
-                  <circle cx="12" cy="19" r="1" />
-                </svg>
-              </Button>
-            </div>
-          ))}
-        </div>
-
-        {/* Navigation Icons */}
-        <div className="flex flex-col items-center space-y-4 border-t p-4">
-          <div className="rounded-full border p-2">
-            <Search
-              className="h-6 w-6 cursor-pointer"
-              onClick={() => {
-                setSearchQuery("");
-                document.getElementById("search-input")?.focus();
-              }}
-            />
-          </div>
-          <Link href="/dashboard" className="rounded-full border p-2">
+          <Link
+            href="/dashboard"
+            className="rounded-full p-2.5 hover:bg-accent"
+            aria-label="Dashboard"
+          >
             <Home className="h-6 w-6" />
           </Link>
-          <Link href="/" className="rounded-full border p-2">
-            <Folio className="h-6 w-6" />
+
+          <Link
+            href="/"
+            className="rounded-full p-2.5 hover:bg-accent"
+            aria-label="Landing Page"
+          >
+            <Image src="/favicon.ico" alt="File" width={24} height={24} />
           </Link>
         </div>
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex flex-1 flex-col">
-        {/* Top Search Bar */}
-        <div className="flex h-16 items-center justify-between border-b px-4">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="search-input"
-              className="w-full pl-10"
-              placeholder="e.g., generate a portfolio of agentic AI companies"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearch();
-                }
-              }}
-            />
-          </div>
-          <div className="ml-4 flex items-center gap-2">
-            <Button variant="outline" size="icon">
-              <Upload className="h-4 w-4" />
-              <span className="sr-only">Upload</span>
-            </Button>
-            <div className="h-8 w-8 rounded-full bg-primary"></div>
-          </div>
-        </div>
+      {/* Main content wrapper */}
+      <div className="ml-20 flex flex-1">
+        <div className="flex flex-1">
+          {/* Document Tabs Sidebar */}
+          <div className="mt-20 w-64 border-r-0">
+            <div className="flex items-center justify-between p-4">
+              <h2 className="font-medium">Document tabs</h2>
+              <Button variant="ghost" size="icon" onClick={handleAddTab}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
 
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-auto p-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`mb-4 flex ${
-                message.isUser ? "justify-end" : "justify-start"
-              }`}
-            >
+            {/* Shorter horizontal line */}
+            <div className="mx-4 border-t border-border" />
+
+            <div className="overflow-y-auto p-2">
+              {documentTabs.map((tab) => (
+                <div
+                  key={tab.id}
+                  className={`mb-1 flex cursor-pointer items-center justify-between rounded-lg p-2 ${
+                    tab.active ? "bg-black text-white" : "hover:bg-accent"
+                  }`}
+                  onClick={() => handleTabClick(tab.id)}
+                >
+                  <span>{tab.name}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>Rename</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive">
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ))}
+            </div>
+
+            {isSearching && (
+              <div className="border-t border-border p-2">
+                <Input
+                  placeholder="Search documents..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    handleSearch(e.target.value);
+                  }}
+                  className="w-full"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Chat Area */}
+          <div className="relative mt-20 flex-1">
+            {/* Chat container with responsive spacing */}
+            <div className="absolute inset-y-0 left-0 right-0 rounded-tl-3xl rounded-tr-3xl border-l border-r border-t border-border bg-background shadow-sm md:right-[8%]">
+              {/* Chat Messages */}
               <div
-                className={`max-w-[80%] rounded-lg p-3 ${
-                  message.isUser
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground"
-                }`}
+                ref={chatContainerRef}
+                className="h-[calc(100%-80px)] overflow-y-auto p-6"
               >
-                <p>{message.content}</p>
-                <div className="mt-1 text-xs opacity-70">
-                  {message.timestamp.toLocaleTimeString()}
-                </div>
+                {messages.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center">
+                    <div className="text-muted-foreground">
+                      e.g., generate a portfolio of agentic AI companies
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`max-w-3xl ${message.isUser ? "ml-auto" : "mr-auto"}`}
+                      >
+                        <div
+                          className={`rounded-lg p-3 ${message.isUser ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                        >
+                          {message.content}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {isLoading && (
+                  <div className="mr-auto max-w-3xl">
+                    <div className="rounded-lg bg-muted p-3">
+                      <div className="flex space-x-2">
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground delay-75"></div>
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground delay-150"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="max-w-[80%] rounded-lg bg-secondary p-3 text-secondary-foreground">
-                <div className="flex space-x-2">
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-current"></div>
-                  <div
-                    className="h-2 w-2 animate-bounce rounded-full bg-current"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
-                  <div
-                    className="h-2 w-2 animate-bounce rounded-full bg-current"
-                    style={{ animationDelay: "0.4s" }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Message Input */}
-        <div className="border-t p-4">
-          <div className="flex items-center gap-2">
-            <Input
-              className="flex-1"
-              placeholder="What are you looking for? Give us a brief description."
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage();
-                }
-              }}
-            />
-            <Button
-              size="icon"
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
-            >
-              <Send className="h-4 w-4" />
-              <span className="sr-only">Send</span>
-            </Button>
+              {/* Chat Input */}
+              <div className="absolute bottom-4 left-0 right-0 px-6">
+                <form onSubmit={handleSubmit} className="relative w-full">
+                  <Input
+                    placeholder="What are you looking for? Give us a brief description."
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    className="rounded-full py-6 pr-10"
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full"
+                    disabled={!inputValue.trim() || isLoading}
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
+            </div>
+
+            {/* User profile button - BIGGER */}
+            <div className="absolute right-6 top-6 z-10">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-12 w-12 rounded-full"
+                  >
+                    <User className="h-7 w-7" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>
