@@ -1,7 +1,7 @@
 "use client";
 
-import { ChatArea } from "@/components/chat-area";
-import { TabBar } from "@/components/tab-bar";
+import { ChatArea } from "@/components/chat/chat-area";
+import { TabBar } from "@/components/chat/tab-bar";
 import { Tabs } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
