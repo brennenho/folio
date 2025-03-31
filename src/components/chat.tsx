@@ -1,100 +1,77 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowUpCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ChatArea } from "@/components/chat-area";
+import { TabBar } from "@/components/tab-bar";
+import { Tabs } from "@/components/ui/tabs";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-interface ChatMessage {
+export interface DocumentTab {
   id: number;
-  content: string;
-  isUser: boolean;
+  name: string;
 }
 
-export function ChatArea() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const chatRef = useRef<HTMLDivElement>(null);
+export function Chat() {
+  const [activeTab, setActiveTab] = useState<number | null>(null);
+  const [tabs, setTabs] = useState<DocumentTab[]>([]);
+  const supabase = createClient();
 
-  // scroll to bottom when new messages are added
   useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
-  }, [messages]);
+    const fetchTabs = async () => {
+      const user = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from("tabs")
+        .select("*")
+        .eq("user_id", user.data.user?.id);
+      if (error) {
+        toast.error("An error occurred fetching chat history");
+      } else {
+        if (!data || data.length === 0) {
+          const { data: newTab, error: tabError } = await supabase
+            .from("tabs")
+            .insert([
+              {
+                name: `Tab 1`,
+                user_id: user.data.user?.id,
+              },
+            ])
+            .select();
 
-  const handleSubmit = () => {
-    if (input.trim() === "") return;
-    const newMessage: ChatMessage = {
-      id: messages.length + 1,
-      content: input,
-      isUser: true,
+          if (tabError || !newTab || newTab.length === 0) {
+            toast.error("Error creating initial tab");
+            return;
+          }
+
+          setTabs(newTab as DocumentTab[]);
+          setActiveTab(newTab[0].id);
+        } else {
+          setTabs(data as DocumentTab[]);
+          setActiveTab(data[data.length - 1].id);
+        }
+      }
     };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-    setInput("");
-    // Simulate a response from the assistant
-    setTimeout(() => {
-      const assistantMessage: ChatMessage = {
-        id: messages.length + 2,
-        content: "This is a simulated response.",
-        isUser: false,
-      };
-      setMessages((prevMessages) => [...prevMessages, assistantMessage]);
-    }, 1000);
-  };
+
+    fetchTabs();
+  }, [supabase]);
+
+  if (!activeTab) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="h-screen w-full py-4 pr-16">
-      <div className="flex h-full w-full flex-col items-center justify-between rounded-2xl border-[0.5px] p-6">
-        <div
-          ref={chatRef}
-          className="mb-6 flex w-full flex-col gap-2 overflow-y-auto"
-        >
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`max-w-3xl ${message.isUser ? "ml-auto" : "mr-auto"}`}
-            >
-              <div
-                className={`rounded-xl p-3 ${message.isUser ? "rounded-br-none bg-primary text-primary-foreground" : "rounded-bl-none bg-muted"}`}
-              >
-                {message.content}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-          {messages.length === 0 && (
-            <div className="text-sm text-border">
-              e.g., generate a portfolio of agentic AI companies
-            </div>
-          )}
-          <div className="relative flex w-3/5 max-w-xl items-center justify-center">
-            <Input
-              placeholder="What are you looking for? Give us a brief description."
-              className="h-fit w-full rounded-3xl border-[0.5px] px-6 py-4 placeholder:text-center placeholder:text-border"
-              onChange={(e) => setInput(e.target.value)}
-              value={input}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSubmit();
-                }
-              }}
-              autoComplete="off"
-              autoCorrect="off"
-            />
-            <Button
-              type="submit"
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full"
-              onClick={handleSubmit}
-            >
-              <ArrowUpCircle className="h-6 w-6" />
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Tabs
+      orientation="vertical"
+      className="flex w-full"
+      value={activeTab.toString()}
+    >
+      <TabBar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        tabs={tabs}
+        setTabs={setTabs}
+      />
+      <ChatArea tabs={tabs} activeTab={activeTab} />
+    </Tabs>
   );
 }
