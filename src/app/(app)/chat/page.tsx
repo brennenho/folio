@@ -1,3 +1,9 @@
+import { TabBar } from "@/components/tab-bar";
+
 export default function Chat() {
-  return <div className="w-full bg-black"></div>;
+  return (
+    <div className="flex w-full">
+      <TabBar />
+    </div>
+  );
 }
