@@ -7,12 +7,13 @@ import { TabsContent } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowUpCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
-interface ChatMessage {
+interface Query {
   id: number;
-  content: string;
-  isUser: boolean;
   tab_id: number;
+  content: string;
+  is_user: boolean;
 }
 
 interface ChatAreaProps {
@@ -22,68 +23,76 @@ interface ChatAreaProps {
 
 export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
   const chatRef = useRef<HTMLDivElement>(null);
-  const [messagesMap, setMessagesMap] = useState<Record<number, ChatMessage[]>>(
-    {},
-  );
+  const [queries, setQueries] = useState<Record<number, Query[]>>({});
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState<Record<number, boolean>>({});
   const supabase = createClient();
 
-  // Initialize messages for each tab
+  // load messages when component mounts or activeTab changes
   useEffect(() => {
-    const fetchMessages = async () => {
-      // You could fetch messages from Supabase here for each tab
-      const initialMessagesMap: Record<number, ChatMessage[]> = {};
+    if (!activeTab) return;
 
-      tabs.forEach((tab) => {
-        initialMessagesMap[tab.id] = [];
-      });
+    const loadMessages = async (tabId: number) => {
+      // skip if we've already loaded messages for this tab
+      if (queries[tabId] && queries[tabId].length > 0) return;
 
-      setMessagesMap(initialMessagesMap);
+      setIsLoading((prev) => ({ ...prev, [tabId]: true }));
+
+      const { data, error } = await supabase
+        .from("queries")
+        .select("*")
+        .eq("tab_id", tabId)
+        .order("timestamp", { ascending: true });
+
+      if (error) {
+        toast.error("An error occurred while fetching message history");
+      } else {
+        setQueries((prev) => ({
+          ...prev,
+          [tabId]: data as Query[],
+        }));
+      }
+
+      setIsLoading((prev) => ({ ...prev, [tabId]: false }));
     };
 
-    if (tabs.length > 0) {
-      fetchMessages();
-    }
-  }, [tabs]);
+    loadMessages(activeTab);
+  }, [activeTab, supabase]);
 
   // scroll to bottom when messages change
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-  }, [messagesMap, activeTab]);
+  }, [queries, activeTab]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async (tab_id: number) => {
     if (input.trim() === "" || !activeTab) return;
 
-    const newMessage: ChatMessage = {
-      id: Date.now(),
-      content: input,
-      isUser: true,
-      tab_id: activeTab,
-    };
+    const { data, error } = await supabase
+      .from("queries")
+      .insert([
+        {
+          tab_id: tab_id,
+          content: input,
+          is_user: true,
+        },
+      ])
+      .select();
 
-    setMessagesMap((prev) => ({
+    if (error || !data) {
+      toast.error("An error occurred, please try again later");
+      return;
+    }
+
+    const newQuery = data[0] as Query;
+
+    setQueries((prev) => ({
       ...prev,
-      [activeTab]: [...(prev[activeTab] || []), newMessage],
+      [activeTab]: [...(prev[activeTab] || []), newQuery],
     }));
 
     setInput("");
-
-    // Simulate a response from the assistant
-    setTimeout(() => {
-      const assistantMessage: ChatMessage = {
-        id: Date.now() + 1,
-        content: "This is a simulated response for tab " + activeTab,
-        isUser: false,
-        tab_id: activeTab,
-      };
-
-      setMessagesMap((prev) => ({
-        ...prev,
-        [activeTab]: [...(prev[activeTab] || []), assistantMessage],
-      }));
-    }, 1000);
   };
 
   return (
@@ -99,21 +108,29 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
               ref={tab.id === activeTab ? chatRef : undefined}
               className="mb-6 flex w-full flex-col gap-2 overflow-y-auto"
             >
-              {messagesMap[tab.id]?.map((message) => (
-                <div
-                  key={message.id}
-                  className={`max-w-3xl ${message.isUser ? "ml-auto" : "mr-auto"}`}
-                >
-                  <div
-                    className={`rounded-xl p-3 ${message.isUser ? "rounded-br-none bg-primary text-primary-foreground" : "rounded-bl-none bg-muted"}`}
-                  >
-                    {message.content}
+              {isLoading[tab.id] ? (
+                <div className="flex justify-center py-4">
+                  <div className="text-sm text-muted-foreground">
+                    Loading messages...
                   </div>
                 </div>
-              ))}
+              ) : (
+                queries[tab.id]?.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`max-w-3xl ${message.is_user ? "ml-auto" : "mr-auto"}`}
+                  >
+                    <div
+                      className={`rounded-xl p-3 ${message.is_user ? "rounded-br-none bg-primary text-primary-foreground" : "rounded-bl-none bg-muted"}`}
+                    >
+                      {message.content}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
             <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-              {(!messagesMap[tab.id] || messagesMap[tab.id]?.length === 0) && (
+              {(!queries[tab.id] || queries[tab.id]?.length === 0) && (
                 <div className="text-sm text-border">
                   e.g., generate a portfolio of agentic AI companies
                 </div>
@@ -126,7 +143,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
                   value={input}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      handleSubmit();
+                      handleSubmit(tab.id);
                     }
                   }}
                   autoComplete="off"
@@ -137,7 +154,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
                   variant="ghost"
                   size="icon"
                   className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full"
-                  onClick={handleSubmit}
+                  onClick={() => handleSubmit(tab.id)}
                 >
                   <ArrowUpCircle className="h-6 w-6" />
                 </Button>
