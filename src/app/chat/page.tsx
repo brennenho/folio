@@ -234,7 +234,7 @@ export default function ChatPage() {
                   }`}
                   onClick={() => handleTabClick(tab.id)}
                 >
-                  <span>{tab.name}</span>
+                  <span className="pl-2">{tab.name}</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
