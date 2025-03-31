@@ -1,9 +1,9 @@
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
 import { Contact } from "@/components/landing/contact";
 import { CallToAction } from "@/components/landing/cta";
 import { Dashboard } from "@/components/landing/dashboard";
 import { Features } from "@/components/landing/features";
+import { Footer } from "@/components/landing/footer";
+import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
 import { Overview } from "@/components/landing/overview";
 import { Steps } from "@/components/landing/steps";

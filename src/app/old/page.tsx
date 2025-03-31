@@ -2,26 +2,18 @@
 
 import type React from "react";
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import {
-  Search,
-  Home,
-  FileText,
-  MoreVertical,
-  Plus,
-  ArrowUp,
-  User,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { ArrowUp, Home, MoreVertical, Plus, Search, User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 interface DocumentTab {
   id: string;
