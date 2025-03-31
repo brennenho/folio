@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUpCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ChatMessage {
   id: number;
@@ -14,6 +14,14 @@ interface ChatMessage {
 export function ChatArea() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const chatRef = useRef<HTMLDivElement>(null);
+
+  // scroll to bottom when new messages are added
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSubmit = () => {
     if (input.trim() === "") return;
@@ -38,7 +46,10 @@ export function ChatArea() {
   return (
     <div className="h-screen w-full py-4 pr-16">
       <div className="flex h-full w-full flex-col items-center justify-between rounded-2xl border-[0.5px] p-6">
-        <div className="flex w-full flex-col gap-2 overflow-y-auto">
+        <div
+          ref={chatRef}
+          className="mb-6 flex w-full flex-col gap-2 overflow-y-auto"
+        >
           {messages.map((message) => (
             <div
               key={message.id}
