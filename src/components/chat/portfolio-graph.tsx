@@ -3,8 +3,7 @@
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
-import { extractTickers } from "@/components/chat/data";
-import type { Components } from "@/components/chat/types";
+import type { Components, StockData } from "@/components/chat/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
@@ -21,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const chartData = [
   { date: "2024-04-01", portfolio: 222, reference: 150 },
@@ -127,13 +127,33 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function PortfolioGraph({ components }: { components: Components[] }) {
+export function extractTickers(components: Components[]): string[] {
+  return components.flatMap((component) =>
+    component.companies.map((company) => company.ticker),
+  );
+}
+
+export function PortfolioGraph({
+  components,
+  active = false,
+}: {
+  components: Components[];
+  active?: boolean;
+}) {
   const [timeRange, setTimeRange] = React.useState("90d");
-  const tickers = extractTickers(components);
+  const [stockData, setStockData] = useState<StockData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasLoadedData, setHasLoadedData] = useState(false);
+
+  // only calculate tickers when active to prevent unnecessary work
+  const tickers = useMemo(
+    () => (active ? extractTickers(components) : []),
+    [components, active],
+  );
 
   const filteredData = chartData.filter((item) => {
     const date = new Date(item.date);
-    const referenceDate = new Date("2024-06-30"); // TODO: Replace with current date
+    const referenceDate = new Date("2024-06-30");
     let daysToSubtract = 90;
     if (timeRange === "30d") {
       daysToSubtract = 30;
@@ -145,11 +165,59 @@ export function PortfolioGraph({ components }: { components: Components[] }) {
     return date >= startDate;
   });
 
+  // useCallback to memoize the fetchData function
+  const fetchData = useCallback(async () => {
+    if (hasLoadedData || !active || tickers.length === 0) return;
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tickers }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Fetched data:", data);
+      setStockData(data);
+      setHasLoadedData(true);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [active, hasLoadedData, tickers]);
+
+  useEffect(() => {
+    // only fetch if component is active, we haven't loaded data yet, and we have tickers
+    if (active && !hasLoadedData && tickers.length > 0) {
+      // add a small delay to avoid multiple fetches when switching tabs quickly
+      const timeoutId = setTimeout(() => {
+        fetchData();
+      }, 100);
+
+      // clean up timeout if component unmounts or dependencies change
+      return () => clearTimeout(timeoutId);
+    }
+  }, [active, hasLoadedData, tickers, fetchData]);
+
+  // if not active, render minimal content or nothing
+  if (!active) {
+    return <div className="lazy-loading-placeholder" />;
+  }
+
   return (
     <Card className="border-0 bg-inherit shadow-none">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Portfolio</CardTitle>
+          {isLoading && (
+            <div className="text-sm text-muted-foreground">Loading data...</div>
+          )}
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger

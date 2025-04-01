@@ -120,6 +120,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
                           components={
                             message.content.portfolio.portfolio_components
                           }
+                          active={activeTab === tab.id}
                         />
                       )}
                     </div>

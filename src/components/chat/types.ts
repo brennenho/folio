@@ -40,6 +40,25 @@ export interface Company {
   name: string;
   ticker: string;
   specialization: string;
+  allocation: number;
   investment_thesis: Record<string, string>;
   financial_metrics: Record<string, string>;
+}
+
+export interface StockData {
+  "Meta Data": {
+    "1. Information": string;
+    "2. Symbol": string;
+    "3. Last Refreshed": string;
+    "4. Time Zone": string;
+  };
+  "Weekly Time Series": {
+    [date: string]: {
+      "1. open": string;
+      "2. high": string;
+      "3. low": string;
+      "4. close": string;
+      "5. volume": string;
+    };
+  };
 }
