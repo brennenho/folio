@@ -13,19 +13,21 @@ export interface Message {
 interface Content {
   text: string;
   investment_response?: string;
-  portfolio?: {
-    thesis: string;
-    generated_at: string;
-    generation_metadata: {
-      attempt: number;
-      error_companies: number;
-      total_companies: number;
-      valid_companies: number;
-      companies_removed: number;
-      final_valid_companies: number;
-    };
-    portfolio_components: Components[];
+  portfolio?: Portfolio;
+}
+
+export interface Portfolio {
+  thesis: string;
+  generated_at: string;
+  generation_metadata: {
+    attempt: number;
+    error_companies: number;
+    total_companies: number;
+    valid_companies: number;
+    companies_removed: number;
+    final_valid_companies: number;
   };
+  portfolio_components: Components[];
 }
 
 export interface Components {

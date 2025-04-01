@@ -1,6 +1,6 @@
 "use client";
 
-import { PortfolioTable } from "@/components/chat/portfolio-table";
+import { Response } from "@/components/chat/response";
 import type { DocumentTab, Message } from "@/components/chat/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,13 +116,11 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
                     >
                       {message.is_user && message.content.text}
                       {!message.is_user && message.content.portfolio && (
-                        <div className="rounded-2xl border p-4 shadow-md">
-                          <PortfolioTable
-                            components={
-                              message.content.portfolio.portfolio_components
-                            }
-                          />
-                        </div>
+                        <Response
+                          components={
+                            message.content.portfolio.portfolio_components
+                          }
+                        />
                       )}
                     </div>
                   </div>
