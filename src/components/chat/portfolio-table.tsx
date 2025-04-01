@@ -47,7 +47,9 @@ export function PortfolioTable({ components }: { components: Components[] }) {
                   {company.ticker}
                 </div>
               </TableCell>
-              <TableCell className="border-r"></TableCell>
+              <TableCell className="border-r">
+                {company.financial_metrics.allocation}
+              </TableCell>
               <TableCell className="border-r">
                 {company.financial_metrics.one_year_return}
               </TableCell>

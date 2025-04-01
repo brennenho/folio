@@ -141,7 +141,7 @@ export function TabBar({
                     onClick={(e) => e.stopPropagation()}
                   />
                 ) : (
-                  <span className="flex h-9 items-center text-base md:text-sm">
+                  <span className="flex h-9 items-center text-left text-base md:text-sm">
                     {tab.name}
                   </span>
                 )}

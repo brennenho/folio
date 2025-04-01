@@ -27,9 +27,6 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
     if (!activeTab) return;
 
     const loadMessages = async (tabId: number) => {
-      // skip if we've already loaded messages for this tab
-      if (messages[tabId] && messages[tabId].length > 0) return;
-
       setIsLoading((prev) => ({ ...prev, [tabId]: true }));
 
       const { data, error } = await supabase
@@ -51,7 +48,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
     };
 
     void loadMessages(activeTab);
-  }, [activeTab, supabase, messages]);
+  }, [activeTab, supabase]);
 
   // scroll to bottom when messages change
   useEffect(() => {
