@@ -275,8 +275,8 @@ const CarouselDots = React.forwardRef<
     }
   }, [api, toggleUpdateState]);
 
-  const numberOfSlides = api?.scrollSnapList().length || 0;
-  const currentSlide = api?.selectedScrollSnap() || 0;
+  const numberOfSlides = api?.scrollSnapList().length ?? 0;
+  const currentSlide = api?.selectedScrollSnap() ?? 0;
 
   if (numberOfSlides > 1) {
     return (

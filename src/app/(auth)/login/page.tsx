@@ -43,7 +43,7 @@ export default function Login() {
         setIsLoading(false);
       }
     }
-    checkUser();
+    void checkUser();
   }, [router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({

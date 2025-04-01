@@ -2,15 +2,11 @@
 
 import { ChatArea } from "@/components/chat/chat-area";
 import { TabBar } from "@/components/chat/tab-bar";
+import { type DocumentTab } from "@/components/chat/types";
 import { Tabs } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
-export interface DocumentTab {
-  id: number;
-  name: string;
-}
 
 export function Chat() {
   const [activeTab, setActiveTab] = useState<number | null>(null);
@@ -44,15 +40,19 @@ export function Chat() {
           }
 
           setTabs(newTab as DocumentTab[]);
+
+          // eslint-disable-next-line
           setActiveTab(newTab[0].id);
         } else {
           setTabs(data as DocumentTab[]);
+
+          // eslint-disable-next-line
           setActiveTab(data[data.length - 1].id);
         }
       }
     };
 
-    fetchTabs();
+    void fetchTabs();
   }, [supabase]);
 
   if (!activeTab) {

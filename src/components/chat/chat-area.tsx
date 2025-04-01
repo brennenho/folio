@@ -1,7 +1,7 @@
 "use client";
 
-import { DocumentTab } from "@/components/chat/chat";
 import { PortfolioTable } from "@/components/chat/portfolio-table";
+import type { DocumentTab, Message } from "@/components/chat/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TabsContent } from "@/components/ui/tabs";
@@ -9,13 +9,6 @@ import { createClient } from "@/lib/supabase/client";
 import { ArrowUpCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-
-interface Message {
-  id: number;
-  tab_id: number;
-  content: Record<string, any>;
-  is_user: boolean;
-}
 
 interface ChatAreaProps {
   activeTab: number;
@@ -57,8 +50,8 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
       setIsLoading((prev) => ({ ...prev, [tabId]: false }));
     };
 
-    loadMessages(activeTab);
-  }, [activeTab, supabase]);
+    void loadMessages(activeTab);
+  }, [activeTab, supabase, messages]);
 
   // scroll to bottom when messages change
   useEffect(() => {
@@ -90,7 +83,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
 
     setMessages((prev) => ({
       ...prev,
-      [activeTab]: [...(prev[activeTab] || []), newQuery],
+      [activeTab]: [...(prev[activeTab] ?? []), newQuery],
     }));
 
     setInput("");
@@ -154,7 +147,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
                   value={input}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      handleSubmit(tab.id);
+                      void handleSubmit(tab.id);
                     }
                   }}
                   autoComplete="off"

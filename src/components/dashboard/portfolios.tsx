@@ -33,8 +33,8 @@ export function Portfolios() {
         setPortfolios(data || []);
       }
     };
-    fetchPortfolios();
-  }, []);
+    void fetchPortfolios();
+  }, [supabase]);
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -72,7 +72,7 @@ function Portfolio({
   href?: string;
 }) {
   return (
-    <Link href={href || ""}>
+    <Link href={href ?? ""}>
       <div className="flex aspect-square w-full cursor-pointer flex-col items-center gap-4 rounded-3xl border-[0.3px] p-4 text-center shadow-sm transition-all hover:shadow-md">
         {children}
       </div>

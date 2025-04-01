@@ -1,6 +1,6 @@
 "use client";
 
-import { DocumentTab } from "@/components/chat/chat";
+import type { DocumentTab } from "@/components/chat/types";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -98,7 +98,7 @@ export function TabBar({
 
   const handleRenameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      saveRename();
+      void saveRename();
     } else if (e.key === "Escape") {
       setEditingTabId(null);
     }
@@ -108,7 +108,7 @@ export function TabBar({
     if (tabs.length > 0 && !tabs.find((tab) => tab.id === activeTab)) {
       setActiveTab(tabs[tabs.length - 1]?.id ?? tabs[0]?.id ?? 0);
     }
-  }, [tabs, activeTab]);
+  }, [tabs, activeTab, setActiveTab]);
 
   return (
     <div className="mx-4 flex h-screen w-64 flex-col pt-20">
