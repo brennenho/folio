@@ -1,6 +1,7 @@
 "use client";
 
 import { DocumentTab } from "@/components/chat/chat";
+import { PortfolioTable } from "@/components/chat/portfolio-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TabsContent } from "@/components/ui/tabs";
@@ -9,7 +10,7 @@ import { ArrowUpCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-interface Query {
+interface Message {
   id: number;
   tab_id: number;
   content: Record<string, any>;
@@ -23,7 +24,7 @@ interface ChatAreaProps {
 
 export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
   const chatRef = useRef<HTMLDivElement>(null);
-  const [queries, setQueries] = useState<Record<number, Query[]>>({});
+  const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState<Record<number, boolean>>({});
   const supabase = createClient();
@@ -34,7 +35,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
 
     const loadMessages = async (tabId: number) => {
       // skip if we've already loaded messages for this tab
-      if (queries[tabId] && queries[tabId].length > 0) return;
+      if (messages[tabId] && messages[tabId].length > 0) return;
 
       setIsLoading((prev) => ({ ...prev, [tabId]: true }));
 
@@ -47,9 +48,9 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
       if (error) {
         toast.error("An error occurred while fetching message history");
       } else {
-        setQueries((prev) => ({
+        setMessages((prev) => ({
           ...prev,
-          [tabId]: data as Query[],
+          [tabId]: data as Message[],
         }));
       }
 
@@ -64,7 +65,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-  }, [queries, activeTab]);
+  }, [messages, activeTab]);
 
   const handleSubmit = async (tab_id: number) => {
     if (input.trim() === "" || !activeTab) return;
@@ -85,9 +86,9 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
       return;
     }
 
-    const newQuery = data[0] as Query;
+    const newQuery = data[0] as Message;
 
-    setQueries((prev) => ({
+    setMessages((prev) => ({
       ...prev,
       [activeTab]: [...(prev[activeTab] || []), newQuery],
     }));
@@ -115,22 +116,32 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
                   </div>
                 </div>
               ) : (
-                queries[tab.id]?.map((message) => (
+                messages[tab.id]?.map((message) => (
                   <div
                     key={message.id}
-                    className={`max-w-3xl ${message.is_user ? "ml-auto" : "mr-auto"}`}
+                    className={`max-w-5xl ${message.is_user ? "ml-auto" : "mr-auto"}`}
                   >
                     <div
-                      className={`rounded-xl p-3 ${message.is_user ? "rounded-br-none bg-primary text-primary-foreground" : "rounded-bl-none bg-muted"}`}
+                      className={`rounded-xl p-3 text-sm text-muted-foreground ${message.is_user ? "rounded-br-none bg-primary text-primary-foreground" : "rounded-bl-none bg-muted"}`}
                     >
-                      {message.content.query}
+                      {message.is_user && message.content.query}
+                      {!message.is_user && message.content.portfolio && (
+                        <div className="rounded-2xl border p-4 shadow-md">
+                          <PortfolioTable
+                            components={
+                              message.content.portfolio.portfolio_components
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
               )}
             </div>
+
             <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-              {(!queries[tab.id] || queries[tab.id]?.length === 0) && (
+              {(!messages[tab.id] || messages[tab.id]?.length === 0) && (
                 <div className="text-sm text-border">
                   e.g., generate a portfolio of agentic AI companies
                 </div>

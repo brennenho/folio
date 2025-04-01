@@ -25,7 +25,14 @@ const config = {
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
   images: {
-    domains: ["img.logo.dev"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.logo.dev",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
 };
 
