@@ -12,7 +12,7 @@ import { toast } from "sonner";
 interface Query {
   id: number;
   tab_id: number;
-  content: string;
+  content: Record<string, any>;
   is_user: boolean;
 }
 
@@ -39,7 +39,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
       setIsLoading((prev) => ({ ...prev, [tabId]: true }));
 
       const { data, error } = await supabase
-        .from("queries")
+        .from("messages")
         .select("*")
         .eq("tab_id", tabId)
         .order("timestamp", { ascending: true });
@@ -70,11 +70,11 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
     if (input.trim() === "" || !activeTab) return;
 
     const { data, error } = await supabase
-      .from("queries")
+      .from("messages")
       .insert([
         {
           tab_id: tab_id,
-          content: input,
+          content: { query: input },
           is_user: true,
         },
       ])
@@ -123,7 +123,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
                     <div
                       className={`rounded-xl p-3 ${message.is_user ? "rounded-br-none bg-primary text-primary-foreground" : "rounded-bl-none bg-muted"}`}
                     >
-                      {message.content}
+                      {message.content.query}
                     </div>
                   </div>
                 ))
