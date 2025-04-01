@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
-import type { Components, StockData } from "@/components/chat/types";
+import type { Components } from "@/components/chat/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
@@ -127,9 +127,23 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function extractTickers(components: Components[]): string[] {
+export function extractTickers(
+  components: Components[],
+): Array<{ ticker: string; allocation: number }> {
   return components.flatMap((component) =>
-    component.companies.map((company) => company.ticker),
+    component.companies.map((company) => {
+      const allocationValue = (() => {
+        const value = parseFloat(
+          company.financial_metrics["allocation"] || "0",
+        );
+        return isNaN(value) ? 0 : value;
+      })();
+
+      return {
+        ticker: company.ticker,
+        allocation: allocationValue,
+      };
+    }),
   );
 }
 
@@ -141,7 +155,7 @@ export function PortfolioGraph({
   active?: boolean;
 }) {
   const [timeRange, setTimeRange] = React.useState("90d");
-  const [stockData, setStockData] = useState<StockData[]>([]);
+  const [stockData, setStockData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoadedData, setHasLoadedData] = useState(false);
 

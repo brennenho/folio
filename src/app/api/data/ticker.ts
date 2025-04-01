@@ -1,9 +1,19 @@
-import type { Components, StockData } from "@/components/chat/types";
-
-export function extractTickers(components: Components[]): string[] {
-  return components.flatMap((component) =>
-    component.companies.map((company) => company.ticker),
-  );
+interface StockData {
+  "Meta Data": {
+    "1. Information": string;
+    "2. Symbol": string;
+    "3. Last Refreshed": string;
+    "4. Time Zone": string;
+  };
+  "Weekly Time Series": {
+    [date: string]: {
+      "1. open": string;
+      "2. high": string;
+      "3. low": string;
+      "4. close": string;
+      "5. volume": string;
+    };
+  };
 }
 
 export async function fetchTickerData(ticker: string): Promise<StockData> {
