@@ -114,7 +114,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
                     <div
                       className={`rounded-xl p-3 text-sm text-muted-foreground ${message.is_user ? "rounded-br-none bg-primary text-primary-foreground" : "rounded-bl-none bg-muted"}`}
                     >
-                      {message.is_user && message.content.query}
+                      {message.is_user && message.content.text}
                       {!message.is_user && message.content.portfolio && (
                         <div className="rounded-2xl border p-4 shadow-md">
                           <PortfolioTable

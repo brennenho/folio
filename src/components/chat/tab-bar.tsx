@@ -137,7 +137,7 @@ export function TabBar({
                     onChange={(e) => setEditingName(e.target.value)}
                     onBlur={saveRename}
                     onKeyDown={handleRenameKeyDown}
-                    className="border-0 bg-foreground p-0 text-background"
+                    className="border-0 bg-inherit p-0 text-inherit shadow-none focus-visible:ring-0"
                     onClick={(e) => e.stopPropagation()}
                   />
                 ) : (
