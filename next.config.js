@@ -24,6 +24,9 @@ const config = {
   },
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
+  images: {
+    domains: ["img.logo.dev"],
+  },
 };
 
 export default config;

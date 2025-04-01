@@ -14,6 +14,7 @@ export const env = createEnv({
     NEXT_PUBLIC_POSTHOG_KEY: z.string(),
     NEXT_PUBLIC_SUPABASE_URL: z.string(),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string(),
+    NEXT_PUBLIC_LOGO_KEY: z.string(),
   },
 
   runtimeEnv: {
@@ -25,6 +26,7 @@ export const env = createEnv({
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_LOGO_KEY: process.env.NEXT_PUBLIC_LOGO_KEY,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
