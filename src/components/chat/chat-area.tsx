@@ -65,7 +65,7 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
       .insert([
         {
           tab_id: tab_id,
-          content: { query: input },
+          content: { text: input },
           is_user: true,
         },
       ])

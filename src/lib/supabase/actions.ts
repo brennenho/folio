@@ -18,7 +18,7 @@ export async function login(loginData: { email: string; password: string }) {
     throw new Error(error.message);
   }
 
-  revalidatePath("/private", "layout");
+  revalidatePath("/chat", "layout");
 }
 
 export async function signup(signupData: {
@@ -47,7 +47,7 @@ export async function signup(signupData: {
     throw new Error(error.message);
   }
 
-  revalidatePath("/private", "layout");
+  revalidatePath("/chat", "layout");
 }
 
 export async function getUser() {

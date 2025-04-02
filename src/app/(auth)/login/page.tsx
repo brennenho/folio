@@ -38,7 +38,7 @@ export default function Login() {
       const { data, error } = await supabase.auth.getUser();
 
       if (!error && data.user) {
-        router.push("/private");
+        router.push("/chat");
       } else {
         setIsLoading(false);
       }
@@ -59,7 +59,7 @@ export default function Login() {
     try {
       await login(values);
 
-      router.push("/private");
+      router.push("/chat");
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);
