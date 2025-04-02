@@ -30,6 +30,16 @@ export async function signup(signupData: {
 }) {
   const supabase = await createClient();
 
+  const { data: whitelistData, error: whitelistError } = await supabase
+    .from("whitelist")
+    .select("email")
+    .eq("email", signupData.email)
+    .single();
+
+  if (!whitelistData) {
+    throw new Error("Sign up for our waitlist to get access.");
+  }
+
   const data = {
     email: signupData.email,
     password: signupData.password,
