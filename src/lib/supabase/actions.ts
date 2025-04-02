@@ -30,7 +30,7 @@ export async function signup(signupData: {
 }) {
   const supabase = await createClient();
 
-  const { data: whitelistData, error: whitelistError } = await supabase
+  const { data: whitelistData } = await supabase
     .from("whitelist")
     .select("email")
     .eq("email", signupData.email)

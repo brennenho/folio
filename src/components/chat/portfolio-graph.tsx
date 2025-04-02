@@ -3,10 +3,10 @@
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
-import type { Components } from "@/components/chat/types";
+import type { Components, Content } from "@/components/chat/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
@@ -133,9 +133,7 @@ export function extractTickers(
   return components.flatMap((component) =>
     component.companies.map((company) => {
       const allocationValue = (() => {
-        const value = parseFloat(
-          company.financial_metrics["allocation"] || "0",
-        );
+        const value = parseFloat(company.financial_metrics.allocation ?? "0");
         return isNaN(value) ? 0 : value;
       })();
 
@@ -155,7 +153,7 @@ export function PortfolioGraph({
   active?: boolean;
 }) {
   const [timeRange, setTimeRange] = React.useState("90d");
-  const [stockData, setStockData] = useState<any[]>([]);
+  const [stockData, setStockData] = useState<Content>();
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoadedData, setHasLoadedData] = useState(false);
 
@@ -195,7 +193,7 @@ export function PortfolioGraph({
         throw new Error(`Failed to fetch data: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as Content;
       console.log("Fetched data:", data);
       setStockData(data);
       setHasLoadedData(true);
@@ -211,7 +209,7 @@ export function PortfolioGraph({
     if (active && !hasLoadedData && tickers.length > 0) {
       // add a small delay to avoid multiple fetches when switching tabs quickly
       const timeoutId = setTimeout(() => {
-        fetchData();
+        void fetchData();
       }, 100);
 
       // clean up timeout if component unmounts or dependencies change
@@ -293,7 +291,7 @@ export function PortfolioGraph({
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value);
+                const date = new Date(value as string);
                 return date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
@@ -305,10 +303,13 @@ export function PortfolioGraph({
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    });
+                    return new Date(value as string).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                      },
+                    );
                   }}
                   indicator="dot"
                 />

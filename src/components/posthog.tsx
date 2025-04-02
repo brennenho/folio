@@ -37,8 +37,8 @@ function PostHogPageView() {
       if (data.user) {
         posthog.identify(data.user.id, {
           email: data.user.email,
-          first_name: data.user.user_metadata.first_name,
-          last_name: data.user.user_metadata.last_name,
+          first_name: data.user.user_metadata.first_name as string | undefined,
+          last_name: data.user.user_metadata.last_name as string | undefined,
         });
       }
 
@@ -52,9 +52,7 @@ function PostHogPageView() {
       }
     };
 
-    capturePageView();
-
-    return () => {};
+    void capturePageView();
   }, [pathname, searchParams, posthog]);
 
   return null;

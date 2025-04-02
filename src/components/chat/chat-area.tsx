@@ -1,7 +1,7 @@
 "use client";
 
 import { Response } from "@/components/chat/response";
-import type { DocumentTab, Message } from "@/components/chat/types";
+import type { Content, DocumentTab, Message } from "@/components/chat/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TabsContent } from "@/components/ui/tabs";
@@ -90,9 +90,9 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
         },
       );
 
-      const data = await response.json();
+      const data = (await response.json()) as Content;
 
-      if (!response.ok || !data || !data.error) {
+      if (!response.ok || !data) {
         toast.error("An error occurred, please try again later");
         return;
       }

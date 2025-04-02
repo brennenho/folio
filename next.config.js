@@ -42,7 +42,7 @@ const sentryConfig = {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "folio-yz",
+  org: "runfolio",
   project: "javascript-nextjs",
 
   // Only print logs for uploading source maps in CI

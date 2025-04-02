@@ -10,7 +10,7 @@ export interface Message {
   content: Content;
 }
 
-interface Content {
+export interface Content {
   text: string;
   investment_response?: string;
   portfolio?: Portfolio;
