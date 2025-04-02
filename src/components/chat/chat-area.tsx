@@ -60,30 +60,65 @@ export function ChatArea({ activeTab, tabs }: ChatAreaProps) {
   const handleSubmit = async (tab_id: number) => {
     if (input.trim() === "" || !activeTab) return;
 
-    const { data, error } = await supabase
-      .from("messages")
-      .insert([
-        {
-          tab_id: tab_id,
-          content: { text: input },
-          is_user: true,
-        },
-      ])
-      .select();
+    const newMessage: Message = {
+      id: Date.now(),
+      tab_id: tab_id,
+      content: {
+        text: input,
+      },
+      is_user: true,
+    };
+    setMessages((prev) => ({
+      ...prev,
+      [tab_id]: [...(prev[tab_id] ?? []), newMessage],
+    }));
 
-    if (error || !data) {
+    setInput("");
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_FOLIO_API_URL}/chat/investment-query`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tab_id: tab_id,
+            thesis: input,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data || !data.error) {
+        toast.error("An error occurred, please try again later");
+        return;
+      }
+
+      const newResponse: Message = {
+        id: Date.now() + 1,
+        tab_id: tab_id,
+        content: data,
+        is_user: false,
+      };
+      setMessages((prev) => ({
+        ...prev,
+        [tab_id]: [...(prev[tab_id] ?? []), newResponse],
+      }));
+    } catch (error) {
+      console.error("Error:", error);
       toast.error("An error occurred, please try again later");
       return;
     }
 
-    const newQuery = data[0] as Message;
+    // const newQuery = data[0] as Message;
 
-    setMessages((prev) => ({
-      ...prev,
-      [activeTab]: [...(prev[activeTab] ?? []), newQuery],
-    }));
-
-    setInput("");
+    // setMessages((prev) => ({
+    //   ...prev,
+    //   [activeTab]: [...(prev[activeTab] ?? []), newQuery],
+    // }));
   };
 
   return (
