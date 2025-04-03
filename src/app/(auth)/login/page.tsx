@@ -43,7 +43,11 @@ export default function Login() {
         setIsLoading(false);
       }
     }
-    void checkUser();
+
+    void checkUser().catch(() => {
+      toast.error("An unexpected error occured");
+      setIsLoading(false);
+    });
   }, [router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({

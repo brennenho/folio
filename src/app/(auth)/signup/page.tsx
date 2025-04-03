@@ -51,7 +51,10 @@ export default function SignupPage() {
         setIsLoading(false);
       }
     }
-    void checkUser();
+    void checkUser().catch(() => {
+      toast.error("An unexpected error occurred");
+      setIsLoading(false);
+    });
   }, [router]);
 
   const form = useForm<z.infer<typeof signupSchema>>({
