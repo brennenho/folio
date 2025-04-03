@@ -20,7 +20,7 @@ interface StockData {
 export async function fetchTickerData(ticker: string): Promise<StockData> {
   try {
     const response = await fetch(
-      `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${ticker}&apikey=${process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY}`,
+      `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${ticker}&apikey=${process.env.ALPHA_VANTAGE_KEY}`,
     );
 
     if (!response.ok) {

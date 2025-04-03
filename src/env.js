@@ -7,6 +7,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_EMAIL: z.string(),
     GOOGLE_PRIVATE_KEY: z.string(),
     SPREADSHEET_ID: z.string(),
+    ALPHA_VANTAGE_KEY: z.string(),
   },
 
   client: {
@@ -28,6 +29,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_LOGO_KEY: process.env.NEXT_PUBLIC_LOGO_KEY,
+    ALPHA_VANTAGE_KEY: process.env.ALPHA_VANTAGE_KEY,
     NEXT_PUBLIC_FOLIO_API_URL: process.env.NEXT_PUBLIC_FOLIO_API_URL,
   },
 

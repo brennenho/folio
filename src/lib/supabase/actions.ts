@@ -30,15 +30,15 @@ export async function signup(signupData: {
 }) {
   const supabase = await createClient();
 
-  const { data: whitelistData } = await supabase
-    .from("whitelist")
-    .select("email")
-    .eq("email", signupData.email)
-    .single();
+  // const { data: whitelistData } = await supabase
+  //   .from("whitelist")
+  //   .select("email")
+  //   .eq("email", signupData.email)
+  //   .single();
 
-  if (!whitelistData) {
-    throw new Error("Sign up for our waitlist to get access.");
-  }
+  // if (!whitelistData) {
+  //   throw new Error("Sign up for our waitlist to get access.");
+  // }
 
   const data = {
     email: signupData.email,
