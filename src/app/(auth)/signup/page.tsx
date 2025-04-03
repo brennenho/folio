@@ -34,7 +34,7 @@ const signupSchema = z
     path: ["confirmPassword"],
   });
 
-export default function Signup() {
+export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +46,7 @@ export default function Signup() {
       const { data, error } = await supabase.auth.getUser();
 
       if (!error && data.user) {
-        router.push("/private");
+        router.push("/chat");
       } else {
         setIsLoading(false);
       }
@@ -72,8 +72,7 @@ export default function Signup() {
     setSubmitting(true);
     try {
       await signup(values);
-
-      router.push("/private");
+      router.push("/chat");
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);

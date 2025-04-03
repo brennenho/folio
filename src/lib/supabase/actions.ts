@@ -18,7 +18,7 @@ export async function login(loginData: { email: string; password: string }) {
     throw new Error(error.message);
   }
 
-  revalidatePath("/private", "layout");
+  revalidatePath("/chat", "layout");
 }
 
 export async function signup(signupData: {
@@ -29,6 +29,16 @@ export async function signup(signupData: {
   confirmPassword: string;
 }) {
   const supabase = await createClient();
+
+  // const { data: whitelistData } = await supabase
+  //   .from("whitelist")
+  //   .select("email")
+  //   .eq("email", signupData.email)
+  //   .single();
+
+  // if (!whitelistData) {
+  //   throw new Error("Sign up for our waitlist to get access.");
+  // }
 
   const data = {
     email: signupData.email,
@@ -47,7 +57,7 @@ export async function signup(signupData: {
     throw new Error(error.message);
   }
 
-  revalidatePath("/private", "layout");
+  revalidatePath("/chat", "layout");
 }
 
 export async function getUser() {

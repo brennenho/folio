@@ -1,5 +1,6 @@
 "use client";
 
+import { createClient } from "@/lib/supabase/client";
 import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
@@ -29,14 +30,29 @@ function PostHogPageView() {
   const posthog = usePostHog();
 
   useEffect(() => {
-    if (pathname && posthog) {
-      let url = window.origin + pathname;
-      const search = searchParams.toString();
-      if (search) {
-        url += "?" + search;
+    const capturePageView = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+
+      if (data.user) {
+        posthog.identify(data.user.id, {
+          email: data.user.email,
+          first_name: data.user.user_metadata.first_name as string | undefined,
+          last_name: data.user.user_metadata.last_name as string | undefined,
+        });
       }
-      posthog.capture("$pageview", { $current_url: url });
-    }
+
+      if (pathname && posthog) {
+        let url = window.origin + pathname;
+        const search = searchParams.toString();
+        if (search) {
+          url += "?" + search;
+        }
+        posthog.capture("$pageview", { $current_url: url });
+      }
+    };
+
+    void capturePageView();
   }, [pathname, searchParams, posthog]);
 
   return null;
