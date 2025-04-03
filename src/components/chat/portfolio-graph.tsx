@@ -28,11 +28,12 @@ interface StockDataItem {
   close: string; // API seems to return close values as strings
 }
 
-interface StockDataResponse {
-  [ticker: string]: {
+type StockDataResponse = Record<
+  string,
+  {
     data: StockDataItem[];
-  };
-}
+  }
+>;
 
 interface ProcessedDataItem {
   date: string;
@@ -41,7 +42,7 @@ interface ProcessedDataItem {
 
 interface FormattedDataItem {
   date: string;
-  close: string; // Keep as string since that's what we get from the API
+  close: string; // KMS
   ticker: string;
 }
 
@@ -87,7 +88,6 @@ export function PortfolioGraph({
   const [stockData, setStockData] = useState<ProcessedDataItem[]>([]);
   const [yAxisDomain, setYAxisDomain] = useState<[number, number]>([0, 0]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasLoadedData, setHasLoadedData] = useState(false);
 
   // only calculate tickers when active to prevent unnecessary work
   const tickers = useMemo(
@@ -162,7 +162,6 @@ export function PortfolioGraph({
       }
 
       setStockData(processedData);
-      setHasLoadedData(true);
     } catch (error) {
       console.error("Error fetching stock data:", error);
     } finally {
@@ -210,9 +209,9 @@ export function PortfolioGraph({
         if (items && items.length > 0) {
           const portfolioValue = items.reduce((sum: number, item) => {
             // Get the allocation weight for this ticker (default to 0 if not found)
-            const allocation = allocationMap.get(item.ticker) || 0;
+            const allocation = allocationMap.get(item.ticker) ?? 0;
             // Multiply the close price by the allocation weight
-            const closeValue = Number.parseFloat(item.close as string);
+            const closeValue = Number.parseFloat(item.close);
             return sum + (isNaN(closeValue) ? 0 : closeValue) * allocation;
           }, 0);
 
