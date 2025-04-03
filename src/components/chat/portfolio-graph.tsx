@@ -60,7 +60,7 @@ export function PortfolioGraph({
   components: Components[];
   active?: boolean;
 }) {
-  const [timeRange, setTimeRange] = React.useState("1y");
+  const [timeRange, setTimeRange] = React.useState("5y");
   const [stockData, setStockData] = useState<any[]>([]);
   const [yAxisDomain, setYAxisDomain] = useState<[number, number]>([0, 0]);
   const [isLoading, setIsLoading] = useState(false);
