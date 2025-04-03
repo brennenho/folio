@@ -22,6 +22,29 @@ import {
 } from "@/components/ui/select";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+// Define interfaces for API response and data structures
+interface StockDataItem {
+  timestamp: string;
+  close: string; // API seems to return close values as strings
+}
+
+interface StockDataResponse {
+  [ticker: string]: {
+    data: StockDataItem[];
+  };
+}
+
+interface ProcessedDataItem {
+  date: string;
+  close: number;
+}
+
+interface FormattedDataItem {
+  date: string;
+  close: string; // Keep as string since that's what we get from the API
+  ticker: string;
+}
+
 const chartConfig = {
   portfolio: {
     label: "Portfolio",
@@ -61,7 +84,7 @@ export function PortfolioGraph({
   active?: boolean;
 }) {
   const [timeRange, setTimeRange] = React.useState("5y");
-  const [stockData, setStockData] = useState<any[]>([]);
+  const [stockData, setStockData] = useState<ProcessedDataItem[]>([]);
   const [yAxisDomain, setYAxisDomain] = useState<[number, number]>([0, 0]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoadedData, setHasLoadedData] = useState(false);
@@ -104,9 +127,9 @@ export function PortfolioGraph({
         throw new Error(`Failed to fetch stock data: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as StockDataResponse;
       const formattedData = Object.entries(data).map(([ticker, tickerData]) => {
-        return tickerData.data.map((item: any) => ({
+        return tickerData.data.map((item: StockDataItem) => ({
           date: item.timestamp,
           close: item.close,
           ticker,
@@ -149,24 +172,27 @@ export function PortfolioGraph({
 
   // Process data to ensure consistency and prevent empty values from being treated as zero
   const processDataForConsistency = (
-    data: any[],
+    data: FormattedDataItem[],
     tickers: Array<{ ticker: string; allocation: number }>,
-  ) => {
+  ): ProcessedDataItem[] => {
     // Create a map of ticker to allocation for quick lookup
-    const allocationMap = new Map();
+    const allocationMap = new Map<string, number>();
     tickers.forEach((item) => {
       allocationMap.set(item.ticker, item.allocation);
     });
 
     // Group data by date to identify dates with data
-    const dateMap = new Map();
+    const dateMap = new Map<string, FormattedDataItem[]>();
 
     data.forEach((item) => {
       const date = item.date;
       if (!dateMap.has(date)) {
         dateMap.set(date, []);
       }
-      dateMap.get(date).push(item);
+      const items = dateMap.get(date);
+      if (items) {
+        items.push(item);
+      }
     });
 
     // Create a continuous series of dates
@@ -181,12 +207,13 @@ export function PortfolioGraph({
 
         // Calculate portfolio value for this date with allocation weights
         // Only include dates that have actual data
-        if (items.length > 0) {
-          const portfolioValue = items.reduce((sum: number, item: any) => {
+        if (items && items.length > 0) {
+          const portfolioValue = items.reduce((sum: number, item) => {
             // Get the allocation weight for this ticker (default to 0 if not found)
             const allocation = allocationMap.get(item.ticker) || 0;
             // Multiply the close price by the allocation weight
-            return sum + (Number.parseFloat(item.close) || 0) * allocation;
+            const closeValue = Number.parseFloat(item.close as string);
+            return sum + (isNaN(closeValue) ? 0 : closeValue) * allocation;
           }, 0);
 
           return {
@@ -198,7 +225,7 @@ export function PortfolioGraph({
         // Skip dates with no data (this is key to preventing zeros)
         return null;
       })
-      .filter(Boolean); // Remove null entries
+      .filter((item): item is ProcessedDataItem => item !== null); // Type guard to filter out null values
   };
 
   useEffect(() => {
