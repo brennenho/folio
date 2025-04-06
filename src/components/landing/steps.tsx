@@ -1,36 +1,32 @@
 import { AnimationWrapper } from "@/components/animation";
-import { Build, Customize, Execute } from "@/components/icons";
+import { LogTrades, LeaderBoard, InvestCompanies } from "@/components/icons";
 
 export function Steps() {
   return (
     <div className="w-full bg-foreground">
-      <div className="flex w-full flex-col items-center rounded-b-3xl bg-background py-24 text-center">
+      <div className="flex w-full flex-col items-center bg-background py-24 text-center">
         <div className="flex w-5/6 flex-col items-center gap-16 md:w-3/4">
           <AnimationWrapper className="text-2xl font-semibold tracking-wide md:text-4xl">
-            Get Started in 3 Simple Steps
+            How to Compete
           </AnimationWrapper>
           <div className="flex w-full flex-col gap-16">
             <Step
-              title="Build"
-              description="Define your investment goals, interests, or themes, and let our
-                AI curate a diversified selection of stocks. Create a custom ETF
-                tailored to your strategy."
-              icon={<Build className="w-2/3" />}
+              title="Invest"
+              description="Pick your plays, build your strategy, and drop your picks. You’ve got $10,000 in virtual cash and one week to prove you’re the smartest investor in the room. Be ready on Tuesday Morning, April 8th. "
+              icon={<InvestCompanies className="w-3/5" />}
             />
 
             <Step
-              title="Customize"
-              description="Refine your portfolio by adjusting allocations, backtesting
-                performance, and setting risk preferences to align with your
-                investment approach."
-              icon={<Customize className="w-2/3" />}
+              title="Log"
+              description="Track every move. Log your buys, sells, and allocation shifts all on folio. Every choice counts when you’re climbing the leaderboard."
+              icon={<LogTrades className="w-4/5" />}
               reverse
             />
 
             <Step
-              title="Execute"
-              description="With bank-level security, seamlessly link folio to one or more of your brokerages and bring your portfolio to life."
-              icon={<Execute className="w-2/5" />}
+              title="Live"
+              description="Stack your performance against friends, clubs and schools. Real-time rankings, three winners. Let’s see who’s got the edge."
+              icon={<LeaderBoard className="w-4/5" />}
             />
           </div>
         </div>
