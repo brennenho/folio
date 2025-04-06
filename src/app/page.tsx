@@ -5,8 +5,9 @@ import { Features } from "@/components/landing/features";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
-import { Overview } from "@/components/landing/overview";
 import { Steps } from "@/components/landing/steps";
+import { Schools } from "@/components/landing/schools";
+import { PrizeBoard } from "@/components/landing/prizes";
 
 export default function HomePage() {
   return (
@@ -15,11 +16,10 @@ export default function HomePage() {
       <main className="flex flex-col items-center justify-center">
         <Hero />
         <Dashboard />
-        <Overview />
+        <Schools />
+        <PrizeBoard />
         <Steps />
-        <Features />
         <CallToAction />
-        <Contact />
       </main>
       <Footer />
     </>

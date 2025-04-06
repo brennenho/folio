@@ -3,7 +3,7 @@ import { AppDashboard } from "@/components/icons";
 
 export function Dashboard() {
   return (
-    <AnimationWrapper className="w-5/6 pb-16 md:w-3/4">
+    <AnimationWrapper className="flex w-5/6 items-center justify-center pb-16 md:w-3/4">
       <AppDashboard />
     </AnimationWrapper>
   );
