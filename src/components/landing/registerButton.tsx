@@ -199,12 +199,12 @@ export function RegisterButton({ arrow = true }: { arrow?: boolean }) {
           <div className="flex flex-col items-center space-y-6 text-center">
             <h2 className="text-4xl font-medium text-gray-700">Good Luck!</h2>
 
-            <p className="max-w-sm text-base font-normal leading-relaxed text-gray-600">
-              The market opens on Tuesday (4/8) @ 9:30AM ET. We'll email you
-              with more instructions on Monday.
+            <p className="font-instrument-sans text-black">
+              The market opens on Tuesday (4/8) @ 9:30AM ET. We&apos;ll email
+              you with more instructions on Monday.
             </p>
 
-            <p className="mt-2 text-lg font-normal text-gray-700">
+            <p className="font-instrument-sans mt-2 text-lg text-black">
               See you on the Leaderboard
             </p>
 
