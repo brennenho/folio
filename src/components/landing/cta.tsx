@@ -1,5 +1,5 @@
 import { AnimationWrapper } from "@/components/animation";
-import { RegisterButton } from "@/components/landing/registerButton";
+import { RegisterButton } from "@/components/landing/register";
 
 export function CallToAction() {
   return (

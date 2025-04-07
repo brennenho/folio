@@ -11,12 +11,12 @@ export function Menu() {
           <Search className="h-8 w-8" />
         </Button>
       </Link> */}
-      <Link href="/chat">
+      <Link href="/dashboard">
         <Button variant="ghost" className="rounded-3xl">
           <House className="h-8 w-8" />
         </Button>
       </Link>
-      <Link href="/dashboard">
+      <Link href="/trade">
         <Button variant="ghost" className="rounded-3xl">
           <Folio className="h-8 w-8" />
         </Button>
