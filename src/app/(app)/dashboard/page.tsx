@@ -1,7 +1,6 @@
 "use client";
 
-import { CompanyLogo } from "@/components/company-logo";
-import { Folio } from "@/components/icons";
+import { Holdings } from "@/components/dashboard/holdings";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
@@ -39,19 +38,28 @@ export default function Dashboard() {
     },
   });
 
-  const { data: holdings, error: holdingsError } = useQuery({
-    queryKey: ["holdings"],
+  const { data: portfolio, error: portfolioError } = useQuery({
+    queryKey: ["portfolio"],
     queryFn: async () => {
-      console.log(user?.id);
+      if (!user?.id) return null;
+
       const { data, error } = await supabase
-        .from("holdings")
+        .from("user_data")
         .select("*")
-        .eq("user_id", user?.id);
+        .eq("user_id", user.id)
+        .single();
+
       if (error) throw new Error(error.message);
-      console.log("holdings", data);
       return data;
     },
+    enabled: !!user?.id,
   });
+
+  useEffect(() => {
+    if (userError || portfolioError) {
+      console.error("An error occurred while fetching user data");
+    }
+  }, [userError]);
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center gap-4 px-12 py-8">
@@ -90,10 +98,10 @@ export default function Dashboard() {
               <div>Buying Power:</div>
               <div className="font-bold">
                 $
-                {/* {(portfolio?.cash ?? 0).toLocaleString("en-US", {
+                {(portfolio?.cash ?? 0).toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
-                })} */}
+                })}
               </div>
             </div>
           </div>
@@ -107,19 +115,8 @@ export default function Dashboard() {
       <div className="m-4 flex w-[260px] flex-col items-center border-b-[0.2px] p-4 text-card-foreground">
         Holdings
       </div>
-      <Card className="flex min-h-[300px] w-full flex-grow flex-col items-center justify-center">
-        {holdings && holdings.length > 0 ? (
-          <div className="grid w-full grid-cols-5 grid-rows-2 gap-2 p-4">
-            {holdings.slice(0, 10).map((company, index) => (
-              <CompanyLogo key={index} company={company.ticker} />
-            ))}
-          </div>
-        ) : (
-          <div className="mx-auto flex flex-col items-center justify-center gap-2 pt-8">
-            <Folio className="h-8 w-8" />{" "}
-            <div>Your Folio is currently empty</div>
-          </div>
-        )}
+      <Card className="flex min-h-[300px] w-full flex-grow flex-col items-center p-6">
+        <Holdings user_id={user?.id ?? ""} />
       </Card>
     </div>
   );

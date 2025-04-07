@@ -104,7 +104,7 @@ export type Database = {
         }
         Relationships: []
       }
-      holding: {
+      holdings: {
         Row: {
           quantity: number | null
           ticker: string
