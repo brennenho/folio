@@ -18,8 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
+import { getMarketStatus } from "@/lib/trades";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { Ban } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -50,6 +52,7 @@ export function Order() {
   });
 
   const queryClient = useQueryClient();
+  const { isOpen } = getMarketStatus();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const supabase = createClient();
@@ -83,7 +86,7 @@ export function Order() {
               <FormItem>
                 <FormLabel>Symbol</FormLabel>
                 <FormControl>
-                  <Input placeholder="ex: AAPL" {...field} />
+                  <Input placeholder="ex: AAPL" {...field} disabled={!isOpen} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -99,6 +102,7 @@ export function Order() {
                   <Input
                     type="number"
                     value={field.value === undefined ? "" : field.value}
+                    disabled={!isOpen}
                     onChange={(e) => {
                       const value = e.target.value;
                       field.onChange(
@@ -121,6 +125,7 @@ export function Order() {
                   <Select
                     defaultValue={field.value}
                     onValueChange={field.onChange}
+                    disabled={!isOpen}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Buy" />
@@ -136,8 +141,14 @@ export function Order() {
             )}
           />
         </div>
-        <Button type="submit" className="w-full">
-          Confirm Trade
+        <Button type="submit" className="w-full" disabled={!isOpen}>
+          {isOpen ? (
+            "Confirm Trade"
+          ) : (
+            <div className="inline-flex items-center gap-2">
+              <Ban /> Market Closed
+            </div>
+          )}
         </Button>
       </form>
     </Form>

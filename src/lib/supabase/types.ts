@@ -104,6 +104,27 @@ export type Database = {
         }
         Relationships: []
       }
+      holding: {
+        Row: {
+          quantity: number | null
+          ticker: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          quantity?: number | null
+          ticker: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          quantity?: number | null
+          ticker?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: Json
@@ -214,19 +235,16 @@ export type Database = {
         Row: {
           account_value: number
           cash: number
-          holdings: Json | null
           user_id: string
         }
         Insert: {
           account_value?: number
           cash?: number
-          holdings?: Json | null
           user_id?: string
         }
         Update: {
           account_value?: number
           cash?: number
-          holdings?: Json | null
           user_id?: string
         }
         Relationships: []

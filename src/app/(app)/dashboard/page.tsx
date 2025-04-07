@@ -5,81 +5,75 @@ import { Folio } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
-import { Plus } from "lucide-react";
+import { getMarketStatus } from "@/lib/trades";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-
-interface UserData {
-  user_id: string;
-  cash: number;
-  stocks: [
-    {
-      ticker: string;
-      shares: number;
-    },
-  ];
-}
 
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [portfolio, setPortfolio] = useState<UserData>();
+  const [marketStatus, setMarketStatus] = useState({
+    isOpen: false,
+    closesIn: "",
+  });
+  const supabase = createClient();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const supabase = createClient();
+    const checkMarketStatus = () => {
+      const status = getMarketStatus();
+      setMarketStatus(status);
+    };
+
+    checkMarketStatus();
+    const marketTimer = setInterval(checkMarketStatus, 60000);
+    return () => clearInterval(marketTimer);
+  }, []);
+
+  const { data: user, error: userError } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      setUser(user);
+      return user;
+    },
+  });
 
+  const { data: holdings, error: holdingsError } = useQuery({
+    queryKey: ["holdings"],
+    queryFn: async () => {
+      console.log(user?.id);
       const { data, error } = await supabase
-        .from("user_data")
+        .from("holdings")
         .select("*")
         .eq("user_id", user?.id);
-
-      if (error) {
-        toast.error("An error occurred fetching your portfolio");
-      } else {
-        if (data.length === 0) {
-          const { data: newData, error: insertError } = await supabase
-            .from("user_data")
-            .insert({ user_id: user?.id, cash: 10000, stocks: [] })
-            .select();
-
-          if (insertError) {
-            toast.error("An error occurred creating your portfolio");
-          } else {
-            setPortfolio(newData[0]);
-          }
-        } else {
-          setPortfolio(data[0]);
-        }
-      }
-
-      setLoading(false);
-    };
-
-    void fetchUser();
-  }, []);
-
-  if (loading) {
-    return null;
-  }
+      if (error) throw new Error(error.message);
+      console.log("holdings", data);
+      return data;
+    },
+  });
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center gap-4 px-12 py-8 text-xl">
+    <div className="flex min-h-screen w-full flex-col items-center gap-4 px-12 py-8">
       <div className="w-full text-2xl font-bold tracking-[0.48px]">
         Welcome {user?.user_metadata.first_name}!
       </div>
-      <div className="flex w-full flex-col gap-8 text-center tracking-[0.4px] md:h-[230px] md:flex-row">
-        <Card className="flex h-full w-full flex-col items-center justify-center gap-2 md:w-[230px]">
-          <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-muted-foreground text-background">
-            <Plus className="h-7 w-7" />
+      <div className="flex w-full flex-col justify-center gap-8 text-center tracking-[0.4px] md:h-[230px] md:flex-row">
+        <Card className="flex h-full w-full flex-col items-center justify-between gap-2 p-6 md:w-[230px]">
+          <div className="flex w-full flex-grow flex-col items-center justify-center gap-3">
+            <div className="font-bold">
+              Market is{" "}
+              {marketStatus.isOpen ? (
+                <span className="text-[#66873C]">Open</span>
+              ) : (
+                <span className="text-[#D9534F]">Closed</span>
+              )}
+            </div>
+            {marketStatus.isOpen && <div>{marketStatus.closesIn}</div>}
           </div>
-          Create Folio
+          <Link href="/trade" className="w-full">
+            <Button className="w-full">Make a Trade</Button>
+          </Link>
         </Card>
 
         <Card className="flex h-full w-full flex-col items-center justify-center gap-6 p-4 md:w-[445px]">
@@ -96,10 +90,10 @@ export default function Dashboard() {
               <div>Buying Power:</div>
               <div className="font-bold">
                 $
-                {(portfolio?.cash ?? 0).toLocaleString("en-US", {
+                {/* {(portfolio?.cash ?? 0).toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
-                })}
+                })} */}
               </div>
             </div>
           </div>
@@ -113,15 +107,10 @@ export default function Dashboard() {
       <div className="m-4 flex w-[260px] flex-col items-center border-b-[0.2px] p-4 text-card-foreground">
         Holdings
       </div>
-      <Card className="flex min-h-[300px] w-full flex-grow flex-col">
-        <div className="p-4">
-          <Link href="/trade">
-            <Button>Make a Trade</Button>
-          </Link>
-        </div>
-        {portfolio && portfolio.stocks && portfolio.stocks.length > 0 ? (
+      <Card className="flex min-h-[300px] w-full flex-grow flex-col items-center justify-center">
+        {holdings && holdings.length > 0 ? (
           <div className="grid w-full grid-cols-5 grid-rows-2 gap-2 p-4">
-            {portfolio.stocks.slice(0, 10).map((company, index) => (
+            {holdings.slice(0, 10).map((company, index) => (
               <CompanyLogo key={index} company={company.ticker} />
             ))}
           </div>
