@@ -1,4 +1,5 @@
 import { PostHogProvider } from "@/components/posthog";
+import { ReactQueryClientProvider } from "@/components/react-query";
 import { ClientToaster } from "@/components/ui/client-toaster";
 
 import "@/styles/globals.css";
@@ -21,13 +22,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={instrumentSans.className}>
-      <body>
-        <PostHogProvider>
-          {children}
-          <ClientToaster /> {/* Use the client-only wrapper */}
-        </PostHogProvider>
-      </body>
-    </html>
+    <ReactQueryClientProvider>
+      <html lang="en" className={instrumentSans.className}>
+        <body>
+          <PostHogProvider>
+            {children}
+            <ClientToaster /> {/* Use the client-only wrapper */}
+          </PostHogProvider>
+        </body>
+      </html>
+    </ReactQueryClientProvider>
   );
 }

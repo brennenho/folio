@@ -9,7 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getTradeHistory } from "@/lib/queries/trades";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -22,29 +24,37 @@ interface Trades {
 }
 
 export function TradeHistory() {
-  const [trades, setTrades] = useState<Trades[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const supabase = createClient();
 
   useEffect(() => {
-    const fetchTrades = async () => {
-      const supabase = createClient();
+    const fetchUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-
-      const { data, error } = await supabase
-        .from("trades")
-        .select("*")
-        .eq("user_id", user?.id)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        toast.error("An error occurred while fetching trade history");
-      } else {
-        setTrades(data);
+      if (user) {
+        setUserId(user.id);
       }
     };
-    fetchTrades();
+
+    fetchUser();
   }, []);
+
+  const { data, error, isLoading } = useQuery(
+    getTradeHistory(supabase, userId!),
+  );
+
+  useEffect(() => {
+    if (error) {
+      toast.error("An error occurred while fetching trade history");
+    }
+  }, [error]);
+
+  const trades = data || [];
+
+  if (isLoading) {
+    return <div>Loading trade history...</div>;
+  }
 
   return (
     <Table>
