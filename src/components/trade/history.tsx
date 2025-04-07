@@ -9,9 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getTradeHistory } from "@/lib/queries/trades";
 import { createClient } from "@/lib/supabase/client";
-import { useQuery } from "@supabase-cache-helpers/postgrest-react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -40,9 +39,20 @@ export function TradeHistory() {
     fetchUser();
   }, []);
 
-  const { data, error, isLoading } = useQuery(
-    getTradeHistory(supabase, userId!),
-  );
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["trades", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from("trades")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId,
+  });
 
   useEffect(() => {
     if (error) {

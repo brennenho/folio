@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -48,6 +49,8 @@ export function Order() {
     },
   });
 
+  const queryClient = useQueryClient();
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -66,6 +69,7 @@ export function Order() {
     }
     toast.success("Order placed successfully");
     form.reset();
+    queryClient.invalidateQueries({ queryKey: ["trades"] });
   }
 
   return (
