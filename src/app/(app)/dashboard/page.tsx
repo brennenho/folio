@@ -51,13 +51,13 @@ export default function Dashboard() {
     },
   });
 
-  const { data: portfolio, error: portfolioError } = useQuery({
+  const { data: profile, error: profileError } = useQuery({
     queryKey: ["portfolio"],
     queryFn: async () => {
       if (!user?.id) return null;
 
       const { data, error } = await supabase
-        .from("user_data")
+        .from("profiles")
         .select("*")
         .eq("user_id", user.id)
         .single();
@@ -65,8 +65,11 @@ export default function Dashboard() {
       // TODO: move this to a database trigger
       if (error && error.code === "PGRST116") {
         const { data: newData, error: insertError } = await supabase
-          .from("user_data")
-          .upsert({})
+          .from("profiles")
+          .upsert({
+            first_name: user.user_metadata?.first_name || "",
+            last_name: user.user_metadata?.last_name || "",
+          })
           .select()
           .single();
 
@@ -146,7 +149,7 @@ export default function Dashboard() {
 
     const totalValue =
       holdings.reduce((sum, holding) => sum + (holding.totalValue ?? 0), 0) +
-      (portfolio?.cash ?? 0);
+      (profile?.cash ?? 0);
 
     setAccountValue(totalValue);
 
@@ -154,7 +157,7 @@ export default function Dashboard() {
     const updateAccountValue = async () => {
       try {
         const { error } = await supabase
-          .from("user_data")
+          .from("profiles")
           .update({ account_value: totalValue })
           .eq("user_id", user.id);
 
@@ -165,15 +168,15 @@ export default function Dashboard() {
     };
 
     updateAccountValue();
-  }, [holdings, portfolio?.cash, user?.id, supabase]);
+  }, [holdings, profile?.cash, user?.id, supabase]);
 
   useEffect(() => {
-    if (userError || portfolioError) {
+    if (userError || profileError || holdingsError) {
       console.error("An error occurred while fetching user data");
     }
   }, [userError]);
 
-  const change = (accountValue ?? 0) - (portfolio?.prev_account_value ?? 0);
+  const change = (accountValue ?? 0) - (profile?.prev_account_value ?? 0);
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center gap-4 px-12 py-8">
@@ -212,7 +215,7 @@ export default function Dashboard() {
                     (holdings?.reduce(
                       (sum, holding) => sum + (holding.totalValue ?? 0),
                       0,
-                    ) || 0) + (portfolio?.cash ?? 0)
+                    ) || 0) + (profile?.cash ?? 0)
                   ).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -236,7 +239,7 @@ export default function Dashboard() {
                   <div>Buying Power:</div>
                   <div className="font-bold">
                     $
-                    {(portfolio?.cash ?? 0).toLocaleString("en-US", {
+                    {(profile?.cash ?? 0).toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}

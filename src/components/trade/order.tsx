@@ -103,7 +103,7 @@ export function Order() {
       }
 
       const { data: existingUser } = await supabase
-        .from("user_data")
+        .from("profiles")
         .select("*")
         .eq("user_id", user.id)
         .single();
@@ -158,8 +158,8 @@ export function Order() {
         )
         .select();
 
-      const { data: userData, error: userError } = await supabase
-        .from("user_data")
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
         .update({
           cash: existingUser.cash - spendChange,
         })
@@ -171,8 +171,8 @@ export function Order() {
         !tradesData ||
         holdingsError ||
         !holdingsData ||
-        userError ||
-        !userData
+        profileError ||
+        !profile
       ) {
         toast.error("An error occurred while placing the order");
         return;

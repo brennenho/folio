@@ -74,27 +74,23 @@ export async function getUser() {
 export async function getLeaderboardData() {
   try {
     const supabase = await createClient();
-    
+
     const { data: leaderboardData, error } = await supabase
-      .from('user_data')
-      .select(`
-        cash,
-        account_value,
-        users(display_name)
-      `)
-      .order('account_value', { ascending: true });
+      .from("profiles")
+      .select("*")
+      .order("account_value", { ascending: true });
 
     if (error) {
       throw error;
     }
 
-    // Transform the data to flatten the nested user object
-    const transformedData = leaderboardData.map(entry => ({
+    // transform the data to flatten the nested user object
+    const transformedData = leaderboardData.map((entry) => ({
       cash: entry.cash,
       account_value: entry.account_value,
-      display_name: entry.display_name
+      display_name: entry.display_name,
     }));
-    
+
     return transformedData;
   } catch (error) {
     console.error("Error fetching leaderboard data:", error);
