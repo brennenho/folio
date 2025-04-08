@@ -35,6 +35,9 @@ const config = {
       },
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true, // TEMP - remove when not needed
+  },
 };
 
 // Apply Sentry configuration

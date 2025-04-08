@@ -7,10 +7,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default function JoinPage() {
+function JoinPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +21,7 @@ export default function JoinPage() {
     if (referralCode) {
       localStorage.setItem("referralCode", referralCode);
     }
-  }, [router, searchParams]);
+  }, [searchParams]);
 
   useEffect(() => {
     async function checkUser() {
@@ -64,5 +64,19 @@ export default function JoinPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function JoinPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen w-full items-center justify-center">
+          <Spinner />
+        </div>
+      }
+    >
+      <JoinPageContent />
+    </Suspense>
   );
 }
