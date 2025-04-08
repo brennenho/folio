@@ -1,6 +1,6 @@
 import { Folio } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { House } from "lucide-react";
+import { House, Medal } from "lucide-react";
 import Link from "next/link";
 
 export function Menu() {
@@ -11,6 +11,11 @@ export function Menu() {
           <Search className="h-8 w-8" />
         </Button>
       </Link> */}
+      <Link href="/leaderboard">
+        <Button variant="ghost" className="rounded-3xl">
+          <Medal className="h-8 w-8" />
+        </Button>
+      </Link>
       <Link href="/dashboard">
         <Button variant="ghost" className="rounded-3xl">
           <House className="h-8 w-8" />
