@@ -15,14 +15,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface Trades {
-  ticker: string;
-  quantity: number;
-  price: number;
-  created_at: string;
-  is_buy: boolean;
-}
-
 export function TradeHistory() {
   const [userId, setUserId] = useState<string | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
