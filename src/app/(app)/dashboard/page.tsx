@@ -3,17 +3,31 @@
 import { Holdings } from "@/components/dashboard/holdings";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase/client";
-import { getMarketStatus } from "@/lib/trades";
+import { getMarketStatus, getStockPrice } from "@/lib/trades";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+export type HoldingWithPrice = {
+  ticker: string;
+  quantity: number;
+  spend: number;
+  user_id: string;
+  currentPrice?: number;
+  totalValue?: number;
+  gainLoss?: number;
+  gainLossPercentage?: number;
+};
 
 export default function Dashboard() {
   const [marketStatus, setMarketStatus] = useState({
     isOpen: false,
     closesIn: "",
   });
+  const [accountValue, setAccountValue] = useState(0);
   const supabase = createClient();
 
   useEffect(() => {
@@ -48,14 +62,13 @@ export default function Dashboard() {
         .eq("user_id", user.id)
         .single();
 
+      // TODO: move this to a database trigger
       if (error && error.code === "PGRST116") {
         const { data: newData, error: insertError } = await supabase
           .from("user_data")
           .upsert({})
           .select()
           .single();
-
-        console.log(newData);
 
         if (insertError) throw new Error(insertError.message);
         return newData;
@@ -67,11 +80,100 @@ export default function Dashboard() {
     enabled: !!user?.id,
   });
 
+  const {
+    data: holdings,
+    error: holdingsError,
+    isLoading,
+  } = useQuery({
+    queryKey: ["holdings", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase
+        .from("holdings")
+        .select("*")
+        .eq("user_id", user?.id)
+        .order("spend", { ascending: false });
+
+      if (error) {
+        toast.error("An error occurred fetching your holdings");
+        return [];
+      }
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      // fetch current prices for each holding
+      const holdingsWithPrices: HoldingWithPrice[] = await Promise.all(
+        data.map(async (holding) => {
+          try {
+            const currentPrice = await getStockPrice(holding.ticker);
+
+            const quantity = holding.quantity ?? 0;
+
+            const totalValue = parseFloat((quantity * currentPrice).toFixed(2));
+            const gainLoss = parseFloat(
+              (totalValue - holding.spend).toFixed(2),
+            );
+            const gainLossPercentage = parseFloat(
+              ((gainLoss / holding.spend) * 100).toFixed(2),
+            );
+
+            return {
+              ...holding,
+              quantity,
+              currentPrice: parseFloat(currentPrice.toFixed(2)),
+              totalValue,
+              gainLoss,
+              gainLossPercentage,
+            };
+          } catch {
+            toast.error(`Error fetching price for ${holding.ticker}`);
+            return { ...holding, quantity: holding.quantity ?? 0 };
+          }
+        }),
+      );
+      return holdingsWithPrices;
+    },
+    enabled: !!user?.id,
+    refetchInterval: 30 * 1000,
+    refetchOnWindowFocus: true,
+  });
+
+  useEffect(() => {
+    if (!user?.id || !holdings) return;
+
+    const totalValue =
+      holdings.reduce((sum, holding) => sum + (holding.totalValue ?? 0), 0) +
+      (portfolio?.cash ?? 0);
+
+    setAccountValue(totalValue);
+
+    // update the account value in the database
+    const updateAccountValue = async () => {
+      try {
+        const { error } = await supabase
+          .from("user_data")
+          .update({ account_value: totalValue })
+          .eq("user_id", user.id);
+
+        if (error) throw error;
+      } catch {
+        toast.error("An error occurred updating account value");
+      }
+    };
+
+    updateAccountValue();
+  }, [holdings, portfolio?.cash, user?.id, supabase]);
+
   useEffect(() => {
     if (userError || portfolioError) {
       console.error("An error occurred while fetching user data");
     }
   }, [userError]);
+
+  const change = (accountValue ?? 0) - (portfolio?.prev_account_value ?? 0);
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center gap-4 px-12 py-8">
@@ -97,26 +199,52 @@ export default function Dashboard() {
         </Card>
 
         <Card className="flex h-full w-full flex-col items-center justify-center gap-6 p-4 md:w-[445px]">
-          <div className="inline-flex items-center gap-2">
-            <div>Account Value:</div>
-            <div className="font-bold">$100000</div>
-          </div>
-          <div className="flex gap-6">
-            <div className="flex flex-col items-center gap-2">
-              <div>Today&apos;s Change:</div>
-              <div className="font-bold text-[#66873C]">+$0.05</div>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div>Buying Power:</div>
-              <div className="font-bold">
-                $
-                {(portfolio?.cash ?? 0).toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+          {isLoading || !holdings ? (
+            <Spinner />
+          ) : (
+            <>
+              <div className="inline-flex items-center gap-2">
+                <div>Account Value:</div>
+                <div className="font-bold">
+                  {" "}
+                  $
+                  {(
+                    (holdings?.reduce(
+                      (sum, holding) => sum + (holding.totalValue ?? 0),
+                      0,
+                    ) || 0) + (portfolio?.cash ?? 0)
+                  ).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
               </div>
-            </div>
-          </div>
+              <div className="flex gap-6">
+                <div className="flex flex-col items-center gap-2">
+                  <div>Today&apos;s Change:</div>
+                  <div
+                    className={`font-bold ${change >= 0 ? "text-[#66873C]" : "text-[#D9534F]"}`}
+                  >
+                    {change >= 0 ? "+" : ""}
+                    {change.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <div>Buying Power:</div>
+                  <div className="font-bold">
+                    $
+                    {(portfolio?.cash ?? 0).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </Card>
 
         <Card className="flex h-full w-full items-center justify-center md:w-[422px]">
@@ -127,8 +255,12 @@ export default function Dashboard() {
       <div className="m-4 flex w-[260px] flex-col items-center border-b-[0.2px] p-4 text-card-foreground">
         Holdings
       </div>
-      <Card className="flex min-h-[300px] w-full flex-grow flex-col items-center p-6">
-        <Holdings user_id={user?.id ?? ""} />
+      <Card className="flex min-h-[300px] w-full flex-grow flex-col items-center justify-center p-6">
+        {isLoading || !holdings ? (
+          <Spinner className="my-auto" />
+        ) : (
+          <Holdings holdings={holdings ?? []} />
+        )}
       </Card>
     </div>
   );

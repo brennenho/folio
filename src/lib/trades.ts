@@ -49,7 +49,8 @@ export async function getStockPrice(ticker: string) {
   if (!data) {
     throw new Error("No data returned from API");
   }
-  const stockPrice = data.dailyBar?.close || data.lastTrade?.price;
+  const stockPrice =
+    data.dailyBar?.close || data.lastTrade?.price || data.prevDailyBar?.close;
   if (!stockPrice) {
     throw new Error("No stock price available");
   }

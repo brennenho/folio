@@ -58,6 +58,7 @@ export function Order() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const { search, results, isLoading } = useTickerSearch();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -83,6 +84,7 @@ export function Order() {
   }, [form.watch("ticker")]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setSubmitting(true);
     const supabase = createClient();
 
     try {
@@ -181,7 +183,8 @@ export function Order() {
       queryClient.invalidateQueries({ queryKey: ["holdings"] });
     } catch {
       toast.error("An error occurred while placing the order");
-      return;
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -333,8 +336,14 @@ export function Order() {
               )}
             />
           </div>
-          <Button type="submit" className="w-full" disabled={!isOpen}>
-            {isOpen ? (
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={!isOpen || submitting}
+          >
+            {submitting ? (
+              <Spinner className="h-4 w-4" />
+            ) : isOpen ? (
               "Confirm Trade"
             ) : (
               <div className="inline-flex items-center gap-2">

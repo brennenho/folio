@@ -1,6 +1,7 @@
 "use client";
 
 import { CompanyLogo } from "@/components/company-logo";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -24,15 +25,20 @@ interface Trades {
 
 export function TradeHistory() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+        }
+      } finally {
+        setInitialLoading(false);
       }
     };
 
@@ -62,8 +68,8 @@ export function TradeHistory() {
 
   const trades = data || [];
 
-  if (isLoading) {
-    return <div>Loading trade history...</div>;
+  if (initialLoading || isLoading) {
+    return <Spinner />;
   }
 
   return trades.length > 0 ? (

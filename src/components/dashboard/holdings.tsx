@@ -1,3 +1,4 @@
+import { HoldingWithPrice } from "@/app/(app)/dashboard/page";
 import { CompanyLogo } from "@/components/company-logo";
 import { Folio } from "@/components/icons";
 import {
@@ -8,92 +9,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createClient } from "@/lib/supabase/client";
-import { getStockPrice } from "@/lib/trades";
-import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 
-type HoldingWithPrice = {
-  ticker: string;
-  quantity: number;
-  spend: number;
-  user_id: string;
-  currentPrice?: number;
-  totalValue?: number;
-  gainLoss?: number;
-  gainLossPercentage?: number;
-};
+export function Holdings({ holdings }: { holdings: HoldingWithPrice[] }) {
+  // const supabase = createClient();
 
-export function Holdings({ user_id }: { user_id: string }) {
-  const supabase = createClient();
-
-  const {
-    data: holdings,
-    error: holdingsError,
-    isLoading,
-  } = useQuery({
-    queryKey: ["holdings", user_id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("holdings")
-        .select("*")
-        .eq("user_id", user_id)
-        .order("spend", { ascending: false });
-
-      if (error) {
-        toast.error("An error occurred fetching your holdings");
-        return [];
-      }
-
-      if (!data || data.length === 0) {
-        return [];
-      }
-
-      // fetch current prices for each holding
-      const holdingsWithPrices: HoldingWithPrice[] = await Promise.all(
-        data.map(async (holding) => {
-          try {
-            const currentPrice = await getStockPrice(holding.ticker);
-
-            const quantity = holding.quantity ?? 0;
-
-            const totalValue = parseFloat((quantity * currentPrice).toFixed(2));
-            const gainLoss = parseFloat(
-              (totalValue - holding.spend).toFixed(2),
-            );
-            const gainLossPercentage = parseFloat(
-              ((gainLoss / holding.spend) * 100).toFixed(2),
-            );
-
-            return {
-              ...holding,
-              quantity,
-              currentPrice: parseFloat(currentPrice.toFixed(2)),
-              totalValue,
-              gainLoss,
-              gainLossPercentage,
-            };
-          } catch {
-            toast.error(`Error fetching price for ${holding.ticker}`);
-            return { ...holding, quantity: holding.quantity ?? 0 };
-          }
-        }),
-      );
-
-      return holdingsWithPrices;
-    },
-    enabled: !!user_id,
-    refetchInterval: 30 * 1000,
-    refetchOnWindowFocus: true,
-  });
-
-  if (isLoading) {
-    return (
-      <div className="mx-auto my-auto flex flex-col items-center justify-center gap-2 pt-8">
-        Loading holdings...
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="mx-auto my-auto flex flex-col items-center justify-center gap-2 pt-8">
+  //       Loading holdings...
+  //     </div>
+  //   );
+  // }
 
   return holdings && holdings.length > 0 ? (
     <Table>
