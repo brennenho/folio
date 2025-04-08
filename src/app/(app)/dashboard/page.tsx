@@ -1,108 +1,250 @@
 "use client";
 
-import { CompanyLogo } from "@/components/company-logo";
-import { Folio } from "@/components/icons";
+import { Holdings } from "@/components/dashboard/holdings";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
-import { Plus } from "lucide-react";
+import { getMarketStatus, getStockPrice } from "@/lib/trades";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface UserData {
+export type HoldingWithPrice = {
+  ticker: string;
+  quantity: number;
+  spend: number;
   user_id: string;
-  cash: number;
-  stocks: [
-    {
-      ticker: string;
-      shares: number;
-    },
-  ];
-}
+  currentPrice?: number;
+  totalValue?: number;
+  gainLoss?: number;
+  gainLossPercentage?: number;
+};
 
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [portfolio, setPortfolio] = useState<UserData>();
+  const [marketStatus, setMarketStatus] = useState({
+    isOpen: false,
+    closesIn: "",
+  });
+  const [accountValue, setAccountValue] = useState(0);
+  const supabase = createClient();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const supabase = createClient();
+    const checkMarketStatus = () => {
+      const status = getMarketStatus();
+      setMarketStatus(status);
+    };
+
+    checkMarketStatus();
+    const marketTimer = setInterval(checkMarketStatus, 60000);
+    return () => clearInterval(marketTimer);
+  }, []);
+
+  const { data: user, error: userError } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      setUser(user);
+      return user;
+    },
+  });
+
+  const { data: portfolio, error: portfolioError } = useQuery({
+    queryKey: ["portfolio"],
+    queryFn: async () => {
+      if (!user?.id) return null;
 
       const { data, error } = await supabase
         .from("user_data")
         .select("*")
-        .eq("user_id", user?.id);
+        .eq("user_id", user.id)
+        .single();
 
-      if (error) {
-        toast.error("An error occurred fetching your portfolio");
-      } else {
-        if (data.length === 0) {
-          const { data: newData, error: insertError } = await supabase
-            .from("user_data")
-            .insert({ user_id: user?.id, cash: 10000, stocks: [] })
-            .select();
+      // TODO: move this to a database trigger
+      if (error && error.code === "PGRST116") {
+        const { data: newData, error: insertError } = await supabase
+          .from("user_data")
+          .upsert({})
+          .select()
+          .single();
 
-          if (insertError) {
-            toast.error("An error occurred creating your portfolio");
-          } else {
-            setPortfolio(newData[0]);
-          }
-        } else {
-          setPortfolio(data[0]);
-        }
+        if (insertError) throw new Error(insertError.message);
+        return newData;
       }
 
-      setLoading(false);
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const {
+    data: holdings,
+    error: holdingsError,
+    isLoading,
+  } = useQuery({
+    queryKey: ["holdings", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase
+        .from("holdings")
+        .select("*")
+        .eq("user_id", user?.id)
+        .order("spend", { ascending: false });
+
+      if (error) {
+        toast.error("An error occurred fetching your holdings");
+        return [];
+      }
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      // fetch current prices for each holding
+      const holdingsWithPrices: HoldingWithPrice[] = await Promise.all(
+        data.map(async (holding) => {
+          try {
+            const currentPrice = await getStockPrice(holding.ticker);
+
+            const quantity = holding.quantity ?? 0;
+
+            const totalValue = parseFloat((quantity * currentPrice).toFixed(2));
+            const gainLoss = parseFloat(
+              (totalValue - holding.spend).toFixed(2),
+            );
+            const gainLossPercentage = parseFloat(
+              ((gainLoss / holding.spend) * 100).toFixed(2),
+            );
+
+            return {
+              ...holding,
+              quantity,
+              currentPrice: parseFloat(currentPrice.toFixed(2)),
+              totalValue,
+              gainLoss,
+              gainLossPercentage,
+            };
+          } catch {
+            toast.error(`Error fetching price for ${holding.ticker}`);
+            return { ...holding, quantity: holding.quantity ?? 0 };
+          }
+        }),
+      );
+      return holdingsWithPrices;
+    },
+    enabled: !!user?.id,
+    refetchInterval: 30 * 1000,
+    refetchOnWindowFocus: true,
+  });
+
+  useEffect(() => {
+    if (!user?.id || !holdings) return;
+
+    const totalValue =
+      holdings.reduce((sum, holding) => sum + (holding.totalValue ?? 0), 0) +
+      (portfolio?.cash ?? 0);
+
+    setAccountValue(totalValue);
+
+    // update the account value in the database
+    const updateAccountValue = async () => {
+      try {
+        const { error } = await supabase
+          .from("user_data")
+          .update({ account_value: totalValue })
+          .eq("user_id", user.id);
+
+        if (error) throw error;
+      } catch {
+        toast.error("An error occurred updating account value");
+      }
     };
 
-    void fetchUser();
-  }, []);
+    updateAccountValue();
+  }, [holdings, portfolio?.cash, user?.id, supabase]);
 
-  if (loading) {
-    return null;
-  }
+  useEffect(() => {
+    if (userError || portfolioError) {
+      console.error("An error occurred while fetching user data");
+    }
+  }, [userError]);
+
+  const change = (accountValue ?? 0) - (portfolio?.prev_account_value ?? 0);
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center gap-4 px-12 py-8 text-xl">
+    <div className="flex min-h-screen w-full flex-col items-center gap-4 px-12 py-8">
       <div className="w-full text-2xl font-bold tracking-[0.48px]">
         Welcome {user?.user_metadata.first_name}!
       </div>
-      <div className="flex w-full flex-col gap-8 text-center tracking-[0.4px] md:h-[230px] md:flex-row">
-        <Card className="flex h-full w-full flex-col items-center justify-center gap-2 md:w-[230px]">
-          <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-muted-foreground text-background">
-            <Plus className="h-7 w-7" />
+      <div className="flex w-full flex-col justify-center gap-8 text-center tracking-[0.4px] md:h-[230px] md:flex-row">
+        <Card className="flex h-full w-full flex-col items-center justify-between gap-2 p-6 md:w-[230px]">
+          <div className="flex w-full flex-grow flex-col items-center justify-center gap-3">
+            <div className="font-bold">
+              Market is{" "}
+              {marketStatus.isOpen ? (
+                <span className="text-[#66873C]">Open</span>
+              ) : (
+                <span className="text-[#D9534F]">Closed</span>
+              )}
+            </div>
+            {marketStatus.isOpen && <div>{marketStatus.closesIn}</div>}
           </div>
-          Create Folio
+          <Link href="/trade" className="w-full">
+            <Button className="w-full">Make a Trade</Button>
+          </Link>
         </Card>
 
         <Card className="flex h-full w-full flex-col items-center justify-center gap-6 p-4 md:w-[445px]">
-          <div className="inline-flex items-center gap-2">
-            <div>Account Value:</div>
-            <div className="font-bold">$100000</div>
-          </div>
-          <div className="flex gap-6">
-            <div className="flex flex-col items-center gap-2">
-              <div>Today&apos;s Change:</div>
-              <div className="font-bold text-[#66873C]">+$0.05</div>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div>Buying Power:</div>
-              <div className="font-bold">
-                $
-                {(portfolio?.cash ?? 0).toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+          {isLoading || !holdings ? (
+            <Spinner />
+          ) : (
+            <>
+              <div className="inline-flex items-center gap-2">
+                <div>Account Value:</div>
+                <div className="font-bold">
+                  {" "}
+                  $
+                  {(
+                    (holdings?.reduce(
+                      (sum, holding) => sum + (holding.totalValue ?? 0),
+                      0,
+                    ) || 0) + (portfolio?.cash ?? 0)
+                  ).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
               </div>
-            </div>
-          </div>
+              <div className="flex gap-6">
+                <div className="flex flex-col items-center gap-2">
+                  <div>Today&apos;s Change:</div>
+                  <div
+                    className={`font-bold ${change >= 0 ? "text-[#66873C]" : "text-[#D9534F]"}`}
+                  >
+                    {change >= 0 ? "+" : ""}
+                    {change.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <div>Buying Power:</div>
+                  <div className="font-bold">
+                    $
+                    {(portfolio?.cash ?? 0).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </Card>
 
         <Card className="flex h-full w-full items-center justify-center md:w-[422px]">
@@ -113,23 +255,11 @@ export default function Dashboard() {
       <div className="m-4 flex w-[260px] flex-col items-center border-b-[0.2px] p-4 text-card-foreground">
         Holdings
       </div>
-      <Card className="flex min-h-[300px] w-full flex-grow flex-col">
-        <div className="p-4">
-          <Link href="/trade">
-            <Button>Make a Trade</Button>
-          </Link>
-        </div>
-        {portfolio && portfolio.stocks && portfolio.stocks.length > 0 ? (
-          <div className="grid w-full grid-cols-5 grid-rows-2 gap-2 p-4">
-            {portfolio.stocks.slice(0, 10).map((company, index) => (
-              <CompanyLogo key={index} company={company.ticker} />
-            ))}
-          </div>
+      <Card className="flex min-h-[300px] w-full flex-grow flex-col items-center justify-center p-6">
+        {isLoading || !holdings ? (
+          <Spinner className="my-auto" />
         ) : (
-          <div className="mx-auto flex flex-col items-center justify-center gap-2 pt-8">
-            <Folio className="h-8 w-8" />{" "}
-            <div>Your Folio is currently empty</div>
-          </div>
+          <Holdings holdings={holdings ?? []} />
         )}
       </Card>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { CompanyLogo } from "@/components/company-logo";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -24,15 +25,20 @@ interface Trades {
 
 export function TradeHistory() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+        }
+      } finally {
+        setInitialLoading(false);
       }
     };
 
@@ -62,18 +68,18 @@ export function TradeHistory() {
 
   const trades = data || [];
 
-  if (isLoading) {
-    return <div>Loading trade history...</div>;
+  if (initialLoading || isLoading) {
+    return <Spinner />;
   }
 
-  return (
+  return trades.length > 0 ? (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Ticker</TableHead>
           <TableHead className="text-center">Order Type</TableHead>
           <TableHead className="text-center">Quantity</TableHead>
-          <TableHead className="text-center">Price Executed</TableHead>
+          <TableHead className="text-center">Executed Price</TableHead>
           <TableHead className="text-right">Date</TableHead>
         </TableRow>
       </TableHeader>
@@ -108,5 +114,11 @@ export function TradeHistory() {
         ))}
       </TableBody>
     </Table>
+  ) : (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="text-center">
+        No history, start trading to see your trades here.
+      </div>
+    </div>
   );
 }
