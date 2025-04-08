@@ -66,9 +66,13 @@ export default function Dashboard() {
       // TODO: move this to a database trigger
       if (error && error.code === "PGRST116") {
         let referredBy = null;
+        let userSchool = null;
         if (typeof window !== "undefined") {
           referredBy = localStorage.getItem("referralCode");
+          userSchool = localStorage.getItem("userSchool");
+
           localStorage.removeItem("referralCode");
+          localStorage.removeItem("userSchool");
         }
 
         // First create the new user profile
@@ -77,6 +81,7 @@ export default function Dashboard() {
           .upsert({
             first_name: user.user_metadata?.first_name || "",
             last_name: user.user_metadata?.last_name || "",
+            school: userSchool || "",
             referral_code: generateReferralCode(user.id),
           })
           .select()
