@@ -23,7 +23,7 @@ export function Profile() {
       return;
     }
 
-    router.push("/login");
+    router.push("/join");
     router.refresh();
   };
 

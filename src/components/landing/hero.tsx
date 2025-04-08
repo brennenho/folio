@@ -1,5 +1,5 @@
 import { AnimationWrapper } from "@/components/animation";
-import { RegisterButton } from "./registerButton";
+import { RegisterButton } from "@/components/landing/register";
 
 export function Hero() {
   return (

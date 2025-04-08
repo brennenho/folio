@@ -7,7 +7,7 @@ export function Header() {
       <div className="flex w-5/6 items-center justify-between md:w-3/4">
         <Link href="/" className="flex items-center gap-2">
           <div className="h-15 w-15 flex items-center justify-center rounded-full bg-white">
-            <Folio className="w-20" />
+            <Folio className="h-10 w-10 text-[#A5D66B]" />
           </div>
         </Link>
         <div className="flex flex-row items-center">

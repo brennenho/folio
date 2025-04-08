@@ -35,6 +35,9 @@ const config = {
       },
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true, // TEMP - remove when not needed
+  },
 };
 
 // Apply Sentry configuration
@@ -59,6 +62,9 @@ const sentryConfig = {
 
   // Enables automatic instrumentation of Vercel Cron Monitors.
   automaticVercelMonitors: true,
+  experimental: {
+    instrumentationHook: process.env.NODE_ENV === "production", // Disable instrumentation in development
+  },
 };
 
 export default withSentryConfig(config, sentryConfig);

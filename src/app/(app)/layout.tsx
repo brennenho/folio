@@ -12,13 +12,13 @@ export default async function AppLayout({
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data?.user) {
-    redirect("/login");
+    redirect("/join");
   }
 
   return (
     <div>
       <Menu />
-      <div className="relative ml-16">{children}</div>
+      <div className="relative ml-20">{children}</div>
       <Profile />
     </div>
   );
