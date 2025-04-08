@@ -55,20 +55,27 @@ export function Holdings({ user_id }: { user_id: string }) {
           try {
             const currentPrice = await getStockPrice(holding.ticker);
 
-            const totalValue = holding.quantity * currentPrice;
-            const gainLoss = totalValue - holding.spend;
-            const gainLossPercentage = (gainLoss / holding.spend) * 100;
+            const quantity = holding.quantity ?? 0;
+
+            const totalValue = parseFloat((quantity * currentPrice).toFixed(2));
+            const gainLoss = parseFloat(
+              (totalValue - holding.spend).toFixed(2),
+            );
+            const gainLossPercentage = parseFloat(
+              ((gainLoss / holding.spend) * 100).toFixed(2),
+            );
 
             return {
               ...holding,
-              currentPrice,
+              quantity,
+              currentPrice: parseFloat(currentPrice.toFixed(2)),
               totalValue,
               gainLoss,
               gainLossPercentage,
             };
           } catch {
             toast.error(`Error fetching price for ${holding.ticker}`);
-            return holding;
+            return { ...holding, quantity: holding.quantity ?? 0 };
           }
         }),
       );
@@ -139,7 +146,15 @@ export function Holdings({ user_id }: { user_id: string }) {
                   })}`}
             </TableCell>
             <TableCell
-              className={`text-right ${holding.gainLoss && holding.gainLoss > 0 ? "text-[#66873C]" : holding.gainLoss && holding.gainLoss < 0 ? "text-[#D9534F]" : ""}`}
+              className={`text-right ${
+                holding.gainLoss !== undefined
+                  ? holding.gainLoss > 0
+                    ? "text-[#66873C]"
+                    : holding.gainLoss < 0
+                      ? "text-[#D9534F]"
+                      : ""
+                  : ""
+              }`}
             >
               {holding.gainLoss !== undefined
                 ? `${holding.gainLoss >= 0 ? "+" : "-"}$${Math.abs(
@@ -147,7 +162,7 @@ export function Holdings({ user_id }: { user_id: string }) {
                   ).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                  })} (${holding.gainLoss >= 0 ? "+" : "-"}${holding.gainLossPercentage?.toFixed(2)}%)`
+                  })} (${holding.gainLoss >= 0 ? "+" : ""}${holding.gainLossPercentage?.toFixed(2)}%)`
                 : "Calculating..."}
             </TableCell>
           </TableRow>

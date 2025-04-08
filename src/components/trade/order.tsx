@@ -1,5 +1,6 @@
 "use client";
 
+import { useTickerSearch } from "@/components/trade/search";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -22,6 +23,7 @@ import { getStockPrice } from "@/lib/trades";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Ban } from "lucide-react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -52,6 +54,10 @@ export function Order() {
   });
 
   const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const { search, results, isLoading } = useTickerSearch();
+  const inputRef = useRef<HTMLInputElement>(null);
+
   // const { isOpen } = getMarketStatus();
   const isOpen = true;
 
@@ -79,7 +85,7 @@ export function Order() {
         .eq("user_id", user.id)
         .single();
 
-      if (existingUser.cash - spendChange < 0) {
+      if (!existingUser || existingUser.cash - spendChange < 0) {
         toast.error("You don't have enough buying power to place this order");
         return;
       }
@@ -166,10 +172,64 @@ export function Order() {
             control={form.control}
             name="ticker"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="relative">
                 <FormLabel>Symbol</FormLabel>
                 <FormControl>
-                  <Input placeholder="ex: AAPL" {...field} disabled={!isOpen} />
+                  <div>
+                    <Input
+                      placeholder="ex: AAPL"
+                      {...field}
+                      disabled={!isOpen}
+                      ref={inputRef}
+                      onChange={(e) => {
+                        field.onChange(e.target.value);
+                        search(e.target.value);
+                        if (e.target.value) {
+                          setOpen(true);
+                        } else {
+                          setOpen(false);
+                        }
+                      }}
+                      onFocus={() => {
+                        if (field.value) {
+                          setOpen(true);
+                        }
+                      }}
+                      onBlur={() => {
+                        // Delay closing to allow for selection
+                        setTimeout(() => setOpen(false), 200);
+                      }}
+                    />
+                    {open && results.length > 0 && (
+                      <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-background shadow-lg">
+                        <ul>
+                          {results.map((result) => (
+                            <li
+                              key={result.ticker}
+                              className="flex cursor-pointer items-center px-4 py-2 hover:bg-muted"
+                              onMouseDown={() => {
+                                field.onChange(result.ticker);
+                                setOpen(false);
+                                inputRef.current?.blur();
+                              }}
+                            >
+                              <span className="font-medium">
+                                {result.ticker}
+                              </span>
+                              <span className="ml-2 truncate text-sm text-muted-foreground">
+                                {result.name}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                        {isLoading && (
+                          <div className="px-4 py-2 text-center text-muted-foreground">
+                            Loading...
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
