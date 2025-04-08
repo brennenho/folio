@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase/client";
 import { getMarketStatus, getStockPrice } from "@/lib/trades";
+import { generateReferralCode } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -64,16 +65,54 @@ export default function Dashboard() {
 
       // TODO: move this to a database trigger
       if (error && error.code === "PGRST116") {
+        let referredBy = null;
+        if (typeof window !== "undefined") {
+          referredBy = localStorage.getItem("referralCode");
+          localStorage.removeItem("referralCode");
+        }
+
+        // First create the new user profile
         const { data: newData, error: insertError } = await supabase
           .from("profiles")
           .upsert({
             first_name: user.user_metadata?.first_name || "",
             last_name: user.user_metadata?.last_name || "",
+            referral_code: generateReferralCode(user.id),
           })
           .select()
           .single();
 
         if (insertError) throw new Error(insertError.message);
+
+        if (referredBy) {
+          try {
+            const { data: referrerData, error: referrerError } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("referral_code", referredBy)
+              .single();
+
+            if (referrerError) {
+              console.error("Error finding referrer:", referrerError);
+            } else if (referrerData) {
+              const { error: updateError } = await supabase
+                .from("profiles")
+                .update({
+                  referrals: (referrerData.referrals || 0) + 1,
+                })
+                .eq("referral_code", referredBy);
+
+              if (updateError) {
+                console.error("Error updating referral count:", updateError);
+              } else {
+                toast.success("Successfully joined with referral code!");
+              }
+            }
+          } catch (error) {
+            console.error("Error processing referral:", error);
+          }
+        }
+
         return newData;
       }
 
@@ -324,13 +363,13 @@ export default function Dashboard() {
                         </div>
                         <div>
                           $
-                          {leaderboardData.currentUser.account_value.toLocaleString(
+                          {leaderboardData.currentUser?.account_value?.toLocaleString(
                             "en-US",
                             {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             },
-                          )}
+                          ) || "N/A"}
                         </div>
                       </div>
 
