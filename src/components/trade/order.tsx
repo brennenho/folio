@@ -1,5 +1,6 @@
 "use client";
 
+import { CompanyLogo } from "@/components/company-logo";
 import { useTickerSearch } from "@/components/trade/search";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,12 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase/client";
 import { getStockPrice } from "@/lib/trades";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { Ban } from "lucide-react";
-import { useRef, useState } from "react";
+import { Ban, HandCoins } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -55,11 +57,30 @@ export function Order() {
 
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const { search, results, isLoading } = useTickerSearch();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // const { isOpen } = getMarketStatus();
   const isOpen = true;
+
+  useEffect(() => {
+    const fetchPrice = async () => {
+      const ticker = form.watch("ticker");
+      if (ticker) {
+        try {
+          const price = await getStockPrice(ticker);
+          setCurrentPrice(price);
+        } catch {
+          setCurrentPrice(null);
+        }
+      } else {
+        setCurrentPrice(null);
+      }
+    };
+
+    fetchPrice();
+  }, [form.watch("ticker")]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const supabase = createClient();
@@ -165,135 +186,164 @@ export function Order() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="flex w-full gap-4">
-          <FormField
-            control={form.control}
-            name="ticker"
-            render={({ field }) => (
-              <FormItem className="relative">
-                <FormLabel>Symbol</FormLabel>
-                <FormControl>
-                  <div>
-                    <Input
-                      placeholder="ex: AAPL"
-                      {...field}
-                      disabled={!isOpen}
-                      ref={inputRef}
-                      onChange={(e) => {
-                        field.onChange(e.target.value);
-                        search(e.target.value);
-                        if (e.target.value) {
-                          setOpen(true);
-                        } else {
-                          setOpen(false);
-                        }
-                      }}
-                      onFocus={() => {
-                        if (field.value) {
-                          setOpen(true);
-                        }
-                      }}
-                      onBlur={() => {
-                        // Delay closing to allow for selection
-                        setTimeout(() => setOpen(false), 200);
-                      }}
-                    />
-                    {open && results.length > 0 && (
-                      <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-background shadow-lg">
-                        <ul>
-                          {results.map((result) => (
-                            <li
-                              key={result.ticker}
-                              className="flex cursor-pointer items-center px-4 py-2 hover:bg-muted"
-                              onMouseDown={() => {
-                                field.onChange(result.ticker);
-                                setOpen(false);
-                                inputRef.current?.blur();
-                              }}
-                            >
-                              <span className="font-medium">
-                                {result.ticker}
-                              </span>
-                              <span className="ml-2 truncate text-sm text-muted-foreground">
-                                {result.name}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                        {isLoading && (
-                          <div className="px-4 py-2 text-center text-muted-foreground">
-                            Loading...
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="quantity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Quantity</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    value={field.value === undefined ? "" : field.value}
-                    disabled={!isOpen}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(
-                        value === "" ? undefined : parseFloat(value),
-                      );
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Order Type</FormLabel>
-                <FormControl>
-                  <Select
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    disabled={!isOpen}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Buy" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="buy">Buy</SelectItem>
-                      <SelectItem value="sell">Sell</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <Button type="submit" className="w-full" disabled={!isOpen}>
-          {isOpen ? (
-            "Confirm Trade"
+    <div className="flex w-full items-center justify-center gap-8">
+      {isOpen && (
+        <div className="flex w-44 flex-col items-center justify-center gap-2 text-center">
+          {currentPrice !== null ? (
+            <div className="h-10 w-10 rounded-full">
+              <CompanyLogo company={form.watch("ticker")} />
+            </div>
           ) : (
-            <div className="inline-flex items-center gap-2">
-              <Ban /> Market Closed
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#DCEAC9]">
+              <HandCoins />
             </div>
           )}
-        </Button>
-      </form>
-    </Form>
+          <div className="w-full overflow-hidden truncate whitespace-nowrap">
+            {form.watch("ticker") || "Your Stock"}
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            Current Price:{" "}
+            <span className="font-semibold">
+              $
+              {form.watch("ticker") && currentPrice !== null
+                ? `${currentPrice}`
+                : "0.00"}
+            </span>
+          </div>
+          <div>
+            Total Price: $
+            {currentPrice !== null && form.watch("quantity")
+              ? (currentPrice * form.watch("quantity")).toFixed(2)
+              : "0.00"}
+          </div>
+        </div>
+      )}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="flex w-full gap-4">
+            <FormField
+              control={form.control}
+              name="ticker"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>Symbol</FormLabel>
+                  <FormControl>
+                    <div>
+                      <Input
+                        placeholder="ex: AAPL"
+                        {...field}
+                        disabled={!isOpen}
+                        ref={inputRef}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          search(e.target.value);
+                          if (e.target.value) {
+                            setOpen(true);
+                          } else {
+                            setOpen(false);
+                          }
+                        }}
+                        onFocus={() => {
+                          if (field.value) {
+                            setOpen(true);
+                          }
+                        }}
+                        onBlur={() => {
+                          // delay closing to allow for selection
+                          setTimeout(() => setOpen(false), 200);
+                        }}
+                      />
+                      {open && results.length > 0 && (
+                        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-background shadow-lg">
+                          <ul>
+                            {results.map((result) => (
+                              <li
+                                key={result.ticker}
+                                className="flex cursor-pointer items-center px-2 py-1 hover:bg-muted"
+                                onMouseDown={() => {
+                                  field.onChange(result.ticker);
+                                  setOpen(false);
+                                  inputRef.current?.blur();
+                                }}
+                              >
+                                <span className="font-medium">
+                                  {result.ticker}
+                                </span>
+                                <span className="ml-2 truncate text-sm text-muted-foreground">
+                                  {result.name}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                          {isLoading && <Spinner className="py- h-4 w-4" />}
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantity</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      value={field.value === undefined ? "" : field.value}
+                      disabled={!isOpen}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(
+                          value === "" ? undefined : parseFloat(value),
+                        );
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Order Type</FormLabel>
+                  <FormControl>
+                    <Select
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      disabled={!isOpen}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Buy" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="buy">Buy</SelectItem>
+                        <SelectItem value="sell">Sell</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={!isOpen}>
+            {isOpen ? (
+              "Confirm Trade"
+            ) : (
+              <div className="inline-flex items-center gap-2">
+                <Ban /> Market Closed
+              </div>
+            )}
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 }
