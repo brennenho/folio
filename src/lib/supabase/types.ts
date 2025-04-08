@@ -107,18 +107,21 @@ export type Database = {
       holdings: {
         Row: {
           quantity: number | null
+          spend: number
           ticker: string
           updated_at: string
           user_id: string
         }
         Insert: {
           quantity?: number | null
+          spend?: number
           ticker: string
           updated_at?: string
           user_id?: string
         }
         Update: {
           quantity?: number | null
+          spend?: number
           ticker?: string
           updated_at?: string
           user_id?: string
