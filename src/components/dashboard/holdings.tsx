@@ -81,7 +81,7 @@ export function Holdings({ user_id }: { user_id: string }) {
       </TableBody>
     </Table>
   ) : (
-    <div className="mx-auto flex flex-col items-center justify-center gap-2 pt-8">
+    <div className="mx-auto my-auto flex flex-col items-center justify-center gap-2 pt-8">
       <Folio className="h-8 w-8" /> <div>Your Folio is currently empty</div>
     </div>
   );

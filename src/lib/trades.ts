@@ -39,3 +39,19 @@ export function getMarketStatus() {
     };
   }
 }
+
+export async function getStockPrice(ticker: string) {
+  const response = await fetch("/api/stocks?ticker=" + ticker);
+  if (!response.ok) {
+    throw new Error("API request failed");
+  }
+  const data = await response.json();
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+  const stockPrice = data.dailyBar?.close || data.lastTrade?.price;
+  if (!stockPrice) {
+    throw new Error("No stock price available");
+  }
+  return stockPrice;
+}

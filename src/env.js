@@ -7,6 +7,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_EMAIL: z.string(),
     GOOGLE_PRIVATE_KEY: z.string(),
     SPREADSHEET_ID: z.string(),
+    POLYGON_API_KEY: z.string(),
   },
 
   client: {
@@ -23,6 +24,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_EMAIL: process.env.GOOGLE_CLIENT_EMAIL,
     GOOGLE_PRIVATE_KEY: process.env.GOOGLE_PRIVATE_KEY,
     SPREADSHEET_ID: process.env.SPREADSHEET_ID,
+    POLYGON_API_KEY: process.env.POLYGON_API_KEY,
     NEXT_PUBLIC_WEB3_FORMS_KEY: process.env.NEXT_PUBLIC_WEB3_FORMS_KEY,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,

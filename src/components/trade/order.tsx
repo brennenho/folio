@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
-import { getMarketStatus } from "@/lib/trades";
+import { getStockPrice } from "@/lib/trades";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Ban } from "lucide-react";
@@ -52,27 +52,110 @@ export function Order() {
   });
 
   const queryClient = useQueryClient();
-  const { isOpen } = getMarketStatus();
+  // const { isOpen } = getMarketStatus();
+  const isOpen = true;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const supabase = createClient();
-    const { data, error } = await supabase
-      .from("trades")
-      .insert({
-        ticker: values.ticker,
-        quantity: values.quantity,
-        price: 0,
-        is_buy: values.type === "buy",
-      })
-      .select();
 
-    if (error || !data) {
+    try {
+      const stockPrice = await getStockPrice(values.ticker);
+
+      const spendChange =
+        values.type === "buy"
+          ? values.quantity * stockPrice
+          : -values.quantity * stockPrice;
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        return;
+      }
+
+      const { data: existingUser } = await supabase
+        .from("user_data")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (existingUser.cash - spendChange < 0) {
+        toast.error("You don't have enough buying power to place this order");
+        return;
+      }
+
+      const { data: tradesData, error: tradesError } = await supabase
+        .from("trades")
+        .insert({
+          ticker: values.ticker.toUpperCase(),
+          quantity: values.quantity,
+          price: stockPrice,
+          is_buy: values.type === "buy",
+        })
+        .select();
+
+      // check if the holding already exists
+      const { data: existing } = await supabase
+        .from("holdings")
+        .select("*")
+        .eq("ticker", values.ticker.toUpperCase())
+        .eq("user_id", user.id)
+        .single();
+
+      const quantityChange =
+        values.type === "buy" ? values.quantity : -values.quantity;
+      const newQuantity =
+        existing && existing.quantity
+          ? existing.quantity + quantityChange
+          : quantityChange;
+
+      const newSpend =
+        existing && existing.spend ? existing.spend + spendChange : spendChange;
+
+      // insert or update with the calculated quantity
+      const { data: holdingsData, error: holdingsError } = await supabase
+        .from("holdings")
+        .upsert(
+          {
+            ticker: values.ticker.toUpperCase(),
+            user_id: user.id,
+            quantity: newQuantity,
+            spend: newSpend,
+          },
+          {
+            onConflict: "ticker,user_id",
+            ignoreDuplicates: false,
+          },
+        )
+        .select();
+
+      const { data: userData, error: userError } = await supabase
+        .from("user_data")
+        .update({
+          cash: existingUser.cash - spendChange,
+        })
+        .eq("user_id", user.id)
+        .select();
+
+      if (
+        tradesError ||
+        !tradesData ||
+        holdingsError ||
+        !holdingsData ||
+        userError ||
+        !userData
+      ) {
+        toast.error("An error occurred while placing the order");
+        return;
+      }
+      toast.success("Order placed successfully");
+      form.reset();
+      queryClient.invalidateQueries({ queryKey: ["trades"] });
+      queryClient.invalidateQueries({ queryKey: ["holdings"] });
+    } catch {
       toast.error("An error occurred while placing the order");
       return;
     }
-    toast.success("Order placed successfully");
-    form.reset();
-    queryClient.invalidateQueries({ queryKey: ["trades"] });
   }
 
   return (

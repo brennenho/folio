@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
 import { getMarketStatus } from "@/lib/trades";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -15,7 +15,6 @@ export default function Dashboard() {
     closesIn: "",
   });
   const supabase = createClient();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkMarketStatus = () => {
@@ -48,6 +47,19 @@ export default function Dashboard() {
         .select("*")
         .eq("user_id", user.id)
         .single();
+
+      if (error && error.code === "PGRST116") {
+        const { data: newData, error: insertError } = await supabase
+          .from("user_data")
+          .upsert({})
+          .select()
+          .single();
+
+        console.log(newData);
+
+        if (insertError) throw new Error(insertError.message);
+        return newData;
+      }
 
       if (error) throw new Error(error.message);
       return data;

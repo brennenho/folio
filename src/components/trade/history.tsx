@@ -66,14 +66,14 @@ export function TradeHistory() {
     return <div>Loading trade history...</div>;
   }
 
-  return (
+  return trades.length > 0 ? (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Ticker</TableHead>
           <TableHead className="text-center">Order Type</TableHead>
           <TableHead className="text-center">Quantity</TableHead>
-          <TableHead className="text-center">Price Executed</TableHead>
+          <TableHead className="text-center">Executed Price</TableHead>
           <TableHead className="text-right">Date</TableHead>
         </TableRow>
       </TableHeader>
@@ -108,5 +108,11 @@ export function TradeHistory() {
         ))}
       </TableBody>
     </Table>
+  ) : (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="text-center">
+        No history, start trading to see your trades here.
+      </div>
+    </div>
   );
 }
