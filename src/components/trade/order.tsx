@@ -61,6 +61,9 @@ export function Order() {
   const [submitting, setSubmitting] = useState(false);
   const { search, results, isLoading } = useTickerSearch();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [hasEnoughShares, setHasEnoughShares] = useState(true);
+  const [ownsStock, setOwnsStock] = useState(false);
+  const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
 
   const { isOpen } = getMarketStatus();
 
@@ -82,24 +85,90 @@ export function Order() {
     fetchPrice();
   }, [form.watch("ticker")]);
 
+  // Keep our local state in sync with the form
+  useEffect(() => {
+    setOrderType(form.watch("type"));
+  }, [form.watch("type")]);
+
+  async function checkUserHoldings() {
+    const ticker = form.watch("ticker");
+    const quantity = form.watch("quantity");
+    const type = form.watch("type");
+
+    if (!ticker) {
+      setHasEnoughShares(true);
+      setOwnsStock(false);
+      return;
+    }
+
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setHasEnoughShares(false);
+      setOwnsStock(false);
+      return;
+    }
+
+    const { data: holding } = await supabase
+      .from("holdings")
+      .select("quantity")
+      .eq("ticker", ticker.toUpperCase())
+      .eq("user_id", user.id)
+      .single();
+
+    // Set whether the user owns any of this stock
+    setOwnsStock(!!holding && holding.quantity > 0);
+
+    // Only check if they have enough shares if they're trying to sell
+    if (quantity && type === "sell") {
+      setHasEnoughShares(
+        !!holding && holding.quantity !== null && holding.quantity >= quantity,
+      );
+    } else {
+      setHasEnoughShares(true);
+    }
+  }
+
+  useEffect(() => {
+    checkUserHoldings();
+  }, [form.watch("ticker"), form.watch("quantity"), form.watch("type")]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setSubmitting(true);
     const supabase = createClient();
 
     try {
-      const stockPrice = await getStockPrice(values.ticker);
-
-      const spendChange =
-        values.type === "buy"
-          ? values.quantity * stockPrice
-          : -values.quantity * stockPrice;
-
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
         return;
       }
+
+      if (values.type === "sell") {
+        const { data: holding } = await supabase
+          .from("holdings")
+          .select("quantity")
+          .eq("ticker", values.ticker.toUpperCase())
+          .eq("user_id", user.id)
+          .single();
+
+        if (!holding || holding.quantity < values.quantity) {
+          toast.error("You don't have enough shares to sell");
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      const stockPrice = await getStockPrice(values.ticker);
+
+      const spendChange =
+        values.type === "buy"
+          ? values.quantity * stockPrice
+          : -values.quantity * stockPrice;
 
       const { data: existingUser } = await supabase
         .from("profiles")
@@ -176,8 +245,19 @@ export function Order() {
         toast.error("An error occurred while placing the order");
         return;
       }
+
       toast.success("Order placed successfully");
-      form.reset();
+
+      // Reset form and explicitly set the order type to "buy"
+      form.reset({
+        ticker: "",
+        quantity: undefined,
+        type: "buy",
+      });
+
+      // Force update our local state to ensure UI reflects the change
+      setOrderType("buy");
+
       queryClient.invalidateQueries({ queryKey: ["trades"] });
       queryClient.invalidateQueries({ queryKey: ["holdings"] });
     } catch {
@@ -186,6 +266,14 @@ export function Order() {
       setSubmitting(false);
     }
   }
+
+  useEffect(() => {
+    // If user doesn't own the stock but "sell" is selected, switch to "buy"
+    if (!ownsStock && form.watch("type") === "sell") {
+      form.setValue("type", "buy");
+      setOrderType("buy");
+    }
+  }, [ownsStock, form]);
 
   return (
     <div className="flex w-full items-center justify-center gap-8">
@@ -300,7 +388,7 @@ export function Order() {
                       onChange={(e) => {
                         const value = e.target.value;
                         field.onChange(
-                          value === "" ? undefined : parseFloat(value),
+                          value === "" ? undefined : Number.parseFloat(value),
                         );
                       }}
                     />
@@ -317,16 +405,23 @@ export function Order() {
                   <FormLabel>Order Type</FormLabel>
                   <FormControl>
                     <Select
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
+                      value={orderType}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setOrderType(value as "buy" | "sell");
+                      }}
                       disabled={!isOpen}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Buy" />
+                        <SelectValue placeholder="Buy">
+                          {orderType === "buy" ? "Buy" : "Sell"}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="buy">Buy</SelectItem>
-                        <SelectItem value="sell">Sell</SelectItem>
+                        <SelectItem value="sell" disabled={!ownsStock}>
+                          Sell
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -338,7 +433,11 @@ export function Order() {
           <Button
             type="submit"
             className="w-full"
-            disabled={!isOpen || submitting}
+            disabled={
+              !isOpen ||
+              submitting ||
+              (orderType === "sell" && !hasEnoughShares)
+            }
           >
             {submitting ? (
               <Spinner className="h-4 w-4" />
@@ -351,6 +450,14 @@ export function Order() {
             )}
           </Button>
         </form>
+        {orderType === "sell" &&
+          !hasEnoughShares &&
+          form.watch("ticker") &&
+          form.watch("quantity") && (
+            <div className="text-sm text-red-500">
+              You don't have enough shares to sell
+            </div>
+          )}
       </Form>
     </div>
   );
