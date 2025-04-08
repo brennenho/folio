@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase/client";
-import { getStockPrice } from "@/lib/trades";
+import { getMarketStatus, getStockPrice } from "@/lib/trades";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Ban, HandCoins } from "lucide-react";
@@ -62,8 +62,7 @@ export function Order() {
   const { search, results, isLoading } = useTickerSearch();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // const { isOpen } = getMarketStatus();
-  const isOpen = true;
+  const { isOpen } = getMarketStatus();
 
   useEffect(() => {
     const fetchPrice = async () => {
