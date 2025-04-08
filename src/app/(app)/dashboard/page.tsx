@@ -144,6 +144,35 @@ export default function Dashboard() {
     refetchOnWindowFocus: true,
   });
 
+  const { data: leaderboardData } = useQuery({
+    queryKey: ["userRanking", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("account_value", { ascending: false });
+
+      if (!data) return null;
+
+      const currentUserIndex = data.findIndex((p) => p.user_id === user.id);
+      if (currentUserIndex === -1) return null;
+
+      return {
+        userAbove: currentUserIndex > 0 ? data[currentUserIndex - 1] : null,
+        currentUser: data[currentUserIndex],
+        userBelow:
+          currentUserIndex < data.length - 1
+            ? data[currentUserIndex + 1]
+            : null,
+        rank: currentUserIndex + 1,
+        totalUsers: data.length,
+      };
+    },
+    enabled: !!user?.id,
+  });
+
   useEffect(() => {
     if (!user?.id || !holdings) return;
 
@@ -251,7 +280,94 @@ export default function Dashboard() {
         </Card>
 
         <Card className="flex h-full w-full items-center justify-center md:w-[422px]">
-          [rank]
+          {isLoading || !profile ? (
+            <Spinner />
+          ) : (
+            <div className="flex w-full flex-col gap-4 p-4">
+              <div className="text-lg font-bold">Your Ranking</div>
+
+              <div className="flex w-full flex-col space-y-3">
+                {/* Query for leaderboard data */}
+                {(() => {
+                  if (!leaderboardData) return <Spinner />;
+
+                  return (
+                    <>
+                      {leaderboardData.userAbove && (
+                        <div className="flex items-center justify-between rounded-md px-2 py-1 opacity-70">
+                          <div className="flex items-center gap-2">
+                            <div className="font-medium">
+                              {leaderboardData.rank - 1}.
+                            </div>
+                            <div>
+                              {leaderboardData.userAbove.first_name}{" "}
+                              {leaderboardData.userAbove.last_name}
+                            </div>
+                          </div>
+                          <div>
+                            $
+                            {leaderboardData.userAbove.account_value.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              },
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between rounded-md border px-3 py-2 font-semibold">
+                        <div className="flex items-center gap-2">
+                          <div>{leaderboardData.rank}.</div>
+                          <div>You</div>
+                        </div>
+                        <div>
+                          $
+                          {leaderboardData.currentUser.account_value.toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            },
+                          )}
+                        </div>
+                      </div>
+
+                      {leaderboardData.userBelow && (
+                        <div className="flex items-center justify-between rounded-md px-2 py-1 opacity-70">
+                          <div className="flex items-center gap-2">
+                            <div className="font-medium">
+                              {leaderboardData.rank + 1}.
+                            </div>
+                            <div>
+                              {leaderboardData.userBelow.first_name}{" "}
+                              {leaderboardData.userBelow.last_name}
+                            </div>
+                          </div>
+                          <div>
+                            $
+                            {leaderboardData.userBelow.account_value.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              },
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="mt-2 text-center text-xs text-muted-foreground">
+                        Your rank: {leaderboardData.rank} of{" "}
+                        {leaderboardData.totalUsers}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
         </Card>
       </div>
 
