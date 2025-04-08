@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Copy, Check } from "lucide-react";
+import { ArrowRight, Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -28,8 +28,8 @@ import { z } from "zod";
 const formSchema = z.object({
   name: z.string().min(2).max(100),
   email: z.string().email("Please enter a valid university email"),
-  university: z.string().min(2, "University you attend"),
-  financeOrg: z.string().min(2, "Finance organization"),
+  university: z.string().min(2),
+  financeOrg: z.string().optional(),
 });
 
 export function RegisterButton({ arrow = true }: { arrow?: boolean }) {
@@ -176,7 +176,7 @@ export function RegisterButton({ arrow = true }: { arrow?: boolean }) {
                   name="financeOrg"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Finance Organization</FormLabel>
+                      <FormLabel>Finance Organization (optional)</FormLabel>
                       <FormControl>
                         <Input {...field} className="bg-background" />
                       </FormControl>
