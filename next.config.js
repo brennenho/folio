@@ -25,6 +25,20 @@ const config = {
   },
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
+  async redirects() {
+    return [
+      {
+        source: "/login",
+        destination: "/join",
+        permanent: true,
+      },
+      {
+        source: "/signup",
+        destination: "/join",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
