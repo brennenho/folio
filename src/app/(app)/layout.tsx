@@ -18,7 +18,7 @@ export default async function AppLayout({
   return (
     <div>
       <Menu />
-      <div className="relative ml-16">{children}</div>
+      <div className="relative ml-20">{children}</div>
       <Profile />
     </div>
   );
