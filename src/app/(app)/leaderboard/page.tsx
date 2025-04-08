@@ -76,10 +76,7 @@ export default function LeaderboardPage() {
     <div className="flex min-h-screen flex-col gap-4 p-8">
       <div className="flex flex-col items-center gap-4 p-4 text-center">
         <div className="w-full text-xl font-medium">Rankings</div>
-        <div className="">
-          Share your referral code (onboard 2 friends) to unlock the full
-          leaderboard.
-        </div>
+        <div>Invite your friends by sharing your referral link!</div>
         <div className="flex items-center justify-center gap-4">
           <div
             className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 px-4 transition-colors hover:bg-gray-100"
@@ -100,7 +97,7 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      <LeaderboardTable />
+      <LeaderboardTable referrals={profile?.referrals ?? 0} />
     </div>
   );
 }
