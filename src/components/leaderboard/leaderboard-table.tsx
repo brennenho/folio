@@ -36,7 +36,7 @@ export function LeaderboardTable({ referrals }: { referrals: number }) {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead className="text-center">School</TableHead>
-              <TableHead className="text-right">ROI</TableHead>
+              <TableHead className="text-right">Account Value</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -50,13 +50,10 @@ export function LeaderboardTable({ referrals }: { referrals: number }) {
                 </TableCell>
                 <TableCell className="text-center">{entry.school}</TableCell>
                 <TableCell className="text-right">
-                  {((100 * (10000 - entry.cash)) / 10000).toLocaleString(
-                    "en-US",
-                    {
-                      style: "currency",
-                      currency: "USD",
-                    },
-                  )}
+                  {entry.account_value.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  })}
                 </TableCell>
               </TableRow>
             ))}
