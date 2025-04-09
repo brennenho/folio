@@ -120,7 +120,7 @@ export function Order() {
       .single();
 
     // Set whether the user owns any of this stock
-    setOwnsStock(!!holding && holding.quantity > 0);
+    setOwnsStock(!!holding && !!holding.quantity && holding.quantity > 0);
 
     // Only check if they have enough shares if they're trying to sell
     if (quantity && type === "sell") {
@@ -156,7 +156,11 @@ export function Order() {
           .eq("user_id", user.id)
           .single();
 
-        if (!holding || holding.quantity < values.quantity) {
+        if (
+          !holding ||
+          !holding.quantity ||
+          holding.quantity < values.quantity
+        ) {
           toast.error("You don't have enough shares to sell");
           setSubmitting(false);
           return;
