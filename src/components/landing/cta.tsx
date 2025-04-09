@@ -1,5 +1,7 @@
 import { AnimationWrapper } from "@/components/animation";
-import { RegisterButton } from "@/components/landing/register";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export function CallToAction() {
   return (
@@ -11,7 +13,11 @@ export function CallToAction() {
           </h1>
           <p className="tracking-tight">Register Today to Compete</p>
         </div>
-        <RegisterButton />
+        <Link href="/join">
+          <Button size="lg" className="hidden pl-6 md:inline-flex">
+            <ArrowRight /> Join
+          </Button>
+        </Link>
       </AnimationWrapper>
     </div>
   );
