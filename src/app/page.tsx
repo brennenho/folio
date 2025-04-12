@@ -1,11 +1,13 @@
+import { AnimationWrapper } from "@/components/animation";
+import { Mockup } from "@/components/icons";
+import { Contact } from "@/components/landing/contact";
 import { CallToAction } from "@/components/landing/cta";
-import { Dashboard } from "@/components/landing/dashboard";
+import { Features } from "@/components/landing/features";
 import { Footer } from "@/components/landing/footer";
+import { Functions } from "@/components/landing/functions";
 import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
-import { Steps } from "@/components/landing/steps";
-import { Schools } from "@/components/landing/schools";
-import { PrizeBoard } from "@/components/landing/prizes";
+import { Trust } from "@/components/landing/trust";
 
 export default function HomePage() {
   return (
@@ -13,11 +15,21 @@ export default function HomePage() {
       <Header />
       <main className="flex flex-col items-center justify-center">
         <Hero />
-        <Dashboard />
-        <Schools />
-        <PrizeBoard />
-        <Steps />
-        <CallToAction />
+        <div className="flex w-full flex-col items-center gap-40">
+          <AnimationWrapper className="w-3/4">
+            <Mockup />
+          </AnimationWrapper>
+          <Features />
+          <Functions />
+          <Trust />
+          <div className="h-10 w-full bg-black">
+            <div className="h-10 w-full rounded-b-full bg-white"></div>
+          </div>
+        </div>
+        <div className="flex w-full flex-col items-center gap-24 bg-foreground py-24">
+          <CallToAction />
+          <Contact />
+        </div>
       </main>
       <Footer />
     </>

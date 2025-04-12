@@ -1,26 +1,29 @@
 import { AnimationWrapper } from "@/components/animation";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { WaitlistButton } from "@/components/landing/waitlist";
 
 export function Hero() {
   return (
-    <div className="-mb-8 -mt-8 flex h-[calc(100vh-80px)] w-full items-center justify-center text-center md:h-[calc(100vh-120px)]">
-      <div className="flex w-5/6 flex-col items-center justify-center gap-6 md:w-3/4">
-        <AnimationWrapper className="text-3xl font-medium tracking-wider md:text-4xl lg:text-6xl">
-          Real-Time Stock Competition
+    <div className="flex h-[calc(100vh-96px)] w-full flex-col items-center justify-center gap-6 text-center">
+      <div className="text-[64px] leading-tight tracking-[1.92px]">
+        <AnimationWrapper className="font-medium">
+          A New Way to Invest.
         </AnimationWrapper>
-        <AnimationWrapper className="max-w-[85%] text-muted-foreground md:text-2xl">
-          Start with $10,000 in virtual cash. Compete to win $250 in real money.
-        </AnimationWrapper>
-        <AnimationWrapper className="flex flex-col gap-1">
-          <Link href="/join">
-            <Button size="lg" className="hidden pl-6 md:inline-flex">
-              <ArrowRight /> Join
-            </Button>
-          </Link>
+        <AnimationWrapper className="font-semibold text-[#C5D9AE]">
+          Powered by People.
         </AnimationWrapper>
       </div>
+      <AnimationWrapper className="max-w-[75%] text-muted-foreground md:text-2xl">
+        Automatically copy expert trades with verified performance. Folio is an
+        ecosystem that rewards both investors and copy traders.
+      </AnimationWrapper>
+      <AnimationWrapper className="flex flex-col gap-1">
+        <div>
+          <WaitlistButton arrow={true} />
+        </div>
+        <div className="text-[#383838CC] opacity-80">
+          Learn more + no obligations
+        </div>
+      </AnimationWrapper>
     </div>
   );
 }
