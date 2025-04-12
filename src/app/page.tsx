@@ -1,11 +1,10 @@
+import { Contact } from "@/components/landing/contact";
 import { CallToAction } from "@/components/landing/cta";
 import { Footer } from "@/components/landing/footer";
 import { Functions } from "@/components/landing/functions";
 import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
-import { PrizeBoard } from "@/components/landing/prizes";
-import { Schools } from "@/components/landing/schools";
-import { Steps } from "@/components/landing/steps";
+import { Trust } from "@/components/landing/trust";
 
 export default function HomePage() {
   return (
@@ -14,10 +13,12 @@ export default function HomePage() {
       <main className="flex flex-col items-center justify-center">
         <Hero />
         <Functions />
-        <Schools />
-        <PrizeBoard />
-        <Steps />
+        <Trust />
+        <div className="h-10 w-full bg-black">
+          <div className="h-10 w-full rounded-b-full bg-white"></div>
+        </div>
         <CallToAction />
+        <Contact />
       </main>
       <Footer />
     </>

@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimationWrapper } from "@/components/animation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 
@@ -61,55 +62,59 @@ const itemVariants = {
 export function Functions() {
   return (
     <div className="flex w-full flex-col items-center gap-16">
-      <div className="flex flex-col gap-5 text-center leading-none">
+      <AnimationWrapper className="flex flex-col gap-5 text-center leading-none">
         <div className="text-5xl font-semibold tracking-[1.44px]">
           How Folio Works
         </div>
         <div className="text-2xl tracking-[0.72px]">
           Be both an investor and copy trader in our ecosystem.
         </div>
-      </div>
+      </AnimationWrapper>
 
       <Tabs defaultValue="investors" className="mx-auto w-3/4">
-        <TabsList className="mb-10 grid h-16 w-full grid-cols-2 p-2 text-2xl">
-          <TabsTrigger
-            value="investors"
-            className="h-full data-[state=active]:bg-[#C5D9AE]"
-          >
-            For Investors
-          </TabsTrigger>
-          <TabsTrigger
-            value="copyTraders"
-            className="h-full data-[state=active]:bg-[#C5D9AE]"
-          >
-            For Copy Traders
-          </TabsTrigger>
-        </TabsList>
+        <AnimationWrapper>
+          <TabsList className="mb-10 grid h-16 w-full grid-cols-2 p-2 text-2xl">
+            <TabsTrigger
+              value="investors"
+              className="h-full data-[state=active]:bg-[#C5D9AE]"
+            >
+              For Investors
+            </TabsTrigger>
+            <TabsTrigger
+              value="copyTraders"
+              className="h-full data-[state=active]:bg-[#C5D9AE]"
+            >
+              For Copy Traders
+            </TabsTrigger>
+          </TabsList>
+        </AnimationWrapper>
 
-        <TabsContent value="investors" className="">
-          <motion.div
-            className="space-y-4"
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={listVariants}
-          >
-            {stepsForInvestors.map((step) => (
-              <motion.div
-                key={step.title}
-                className="space-y-1"
-                variants={itemVariants}
-                transition={{ type: "tween" }}
-              >
-                <Step
-                  index={step.index}
-                  title={step.title}
-                  description={step.description}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-        </TabsContent>
+        <AnimationWrapper>
+          <TabsContent value="investors" className="">
+            <motion.div
+              className="space-y-4"
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={listVariants}
+            >
+              {stepsForInvestors.map((step) => (
+                <motion.div
+                  key={step.title}
+                  className="space-y-1"
+                  variants={itemVariants}
+                  transition={{ type: "tween" }}
+                >
+                  <Step
+                    index={step.index}
+                    title={step.title}
+                    description={step.description}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          </TabsContent>
+        </AnimationWrapper>
 
         <TabsContent value="copyTraders" className="">
           <motion.div

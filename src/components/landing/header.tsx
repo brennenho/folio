@@ -9,7 +9,7 @@ export function Header() {
       <div className="flex w-5/6 items-center justify-between md:w-3/4">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-12 w-12 items-center justify-center">
-            <Folio className="h-8 text-[#DCEAC9]" />
+            <Folio className="h-8 stroke-[#83A160] stroke-1 text-[#DCEAC9]" />
           </div>
         </Link>
         <div className="flex flex-row items-center">
