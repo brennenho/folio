@@ -69,7 +69,7 @@ export function Contact() {
 
   return (
     <div
-      className="flex w-full justify-center bg-foreground py-24 text-background"
+      className="flex w-full justify-center bg-foreground text-background"
       id="contact"
     >
       <div className="flex w-5/6 flex-col md:w-3/4 md:flex-row">

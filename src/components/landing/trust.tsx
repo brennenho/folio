@@ -2,7 +2,7 @@ import { AnimationWrapper } from "@/components/animation";
 
 export function Trust() {
   return (
-    <div className="my-36 flex w-3/4 flex-col items-center gap-[74px]">
+    <div className="flex w-3/4 flex-col items-center gap-[74px]">
       <AnimationWrapper className="flex flex-col gap-5 text-center leading-none">
         <div className="text-5xl font-semibold tracking-[1.44px]">
           Why Traders Trust Folio
